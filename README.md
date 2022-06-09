@@ -2,6 +2,12 @@
 
 Django app managing the alarm for GestSIS
 
+## Structure
+
+- The project name is `gestsis_alarm`, in it, there is two projects :
+  - `admin_panel` containing all the code for the admin view
+  - `mail_parser` containing all the code for retrieving mails and parsing the PDF in it
+
 ## Installation
 
 ### Using Docker
