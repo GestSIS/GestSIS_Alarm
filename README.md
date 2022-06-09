@@ -39,3 +39,23 @@ source .ven/bin/activate
 ```
 pip install -r requirements.txt
 ```
+
+#### Populate the environment
+
+You need to specify some variables before running the application. Luckily, the project have a template file :)
+
+4. Rename the `.env.example` file to `.env` (It's in the `gestsis_alarm` folder)
+```bash
+cp gestsis_alarm/.env.xample gestsis_alarm/.env
+```
+5. Generate a secret key and put it into the `.env` file (`GESTSIS_ALARM_SECRET_KEY`)
+```bash
+python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+```
+
+#### Start !
+
+6. Finally, you can run the app !
+```bash
+python manage.py runserver
+```
