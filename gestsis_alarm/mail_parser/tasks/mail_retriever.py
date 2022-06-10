@@ -11,7 +11,7 @@ class MailRetriever:
     _imap_connection = None
     _mail_whitelist = []
 
-    def __init__(self, mail_server, port, username, password, mail_whitelist):
+    def __init__(self, mail_server: str, port: int, username: str, password: str, mail_whitelist: list):
 
         self._imap_connection = imaplib.IMAP4_SSL(mail_server, port)
         self._imap_connection.login(username, password)
@@ -19,6 +19,15 @@ class MailRetriever:
         self._mail_whitelist = mail_whitelist
 
     def check_for_new_messages(self, delete_on_read=False):
+        """
+        Scan the inbox for new message that has a PDF attachment and download it on the disk
+        :param
+          delete_on_read: bool
+            If the message should be delete on the server after it has retrieve the PDF
+
+        :return: A list of filename of all the attachment downloaded
+        :rtype: list
+        """
         new_attachments = []
 
         messages_list = self._retrieve_messages()
@@ -32,7 +41,11 @@ class MailRetriever:
         return new_attachments
 
     def _retrieve_messages(self):
-        # Retrieve ALL emails in the INBOX
+        """
+        Scan for all the unread message in the inbox, check if they met the condition and return them
+        :return: A list of tuple containing the mail id as first member and the message object as the second
+        :rtype: list
+        """
         status, messages = self._imap_connection.select("INBOX")
         stat, data = self._imap_connection.search(None, 'UnSeen')
 
@@ -45,7 +58,19 @@ class MailRetriever:
 
         return mail_list
 
-    def _fetch_message(self, mail_id):
+    def _fetch_message(self, mail_id: int):
+        """
+        Fetch a message from its id and verify that it met the following condition :
+            - Has a attachment
+            - Is from an address that is in the whitelist
+
+        :param
+          mail_id: int
+            The ID that the mail has in the inbox
+
+        :return: The message or None if the message doesn't met the criteria
+        :rtype: email.message.Message or None
+        """
         status, data = self._imap_connection.fetch(mail_id, '(RFC822)')
         response_part = data[0][1]
 
@@ -68,7 +93,15 @@ class MailRetriever:
         return message
 
     @staticmethod
-    def _save_attachment(msg):
+    def _save_attachment(msg: email.message.Message):
+        """
+        Check if there a PDF as attachment in the message and save it on the disk
+        :param
+          msg: email.message.Message
+            The message where an pdf attachment is
+        :return: A list of filename that the method downloaded from the message
+        :rtype: list
+        """
         filenames = []
 
         for part in msg.walk():
