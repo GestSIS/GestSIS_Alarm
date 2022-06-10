@@ -2,7 +2,9 @@ import imaplib
 import email
 from pathlib import Path
 import uuid
-
+from django.conf import settings
+import os.path
+from datetime import datetime
 
 class MailRetriever:
     _imap_connection = None
@@ -20,7 +22,7 @@ class MailRetriever:
 
         messages_list = self._retrieve_messages()
         for mail in messages_list:
-            self._save_attachment(mail)
+            new_attachments += self._save_attachment(mail)
 
         return new_attachments
 
@@ -67,8 +69,11 @@ class MailRetriever:
         for part in msg.walk():
             # Check if we have a PDF (The extension check is here to be extra sure)
             if part.get_content_type() == "application/pdf" and Path(part.get_filename()).suffix == ".pdf":
-                filename = "../pdf/" + str(uuid.uuid4()) + "_" + part.get_filename()
-                with open(filename, 'wb') as fp:
+
+                filename = datetime.now().strftime("%Y_%m_%d_%H_%M_%S") + "_" + str(uuid.uuid4()) + ".pdf"
+                filepath = os.path.join(settings.MEDIA_ROOT, "pdf", filename)
+
+                with open(filepath, 'wb') as fp:
                     fp.write(part.get_payload(decode=True))
 
                 filenames.append(filename)
