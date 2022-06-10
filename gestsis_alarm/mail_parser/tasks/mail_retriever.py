@@ -6,6 +6,7 @@ from django.conf import settings
 import os.path
 from datetime import datetime
 
+
 class MailRetriever:
     _imap_connection = None
     _mail_whitelist = []
@@ -22,7 +23,11 @@ class MailRetriever:
 
         messages_list = self._retrieve_messages()
         for mail in messages_list:
-            new_attachments += self._save_attachment(mail)
+            new_files = self._save_attachment(mail[1])
+            if delete_on_read and len(new_files) > 0:
+                self._imap_connection.store(mail[0], '+FLAGS', '\\Deleted')
+
+            new_attachments += new_files
 
         return new_attachments
 
@@ -36,7 +41,7 @@ class MailRetriever:
         for mail_id in data[0].split():
             content = self._fetch_message(mail_id)
             if content is not None:
-                mail_list.append(content)
+                mail_list.append((mail_id, content))
 
         return mail_list
 
