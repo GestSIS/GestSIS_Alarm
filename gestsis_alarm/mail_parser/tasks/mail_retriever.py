@@ -29,7 +29,7 @@ class MailRetriever:
     def _retrieve_messages(self):
         # Retrieve ALL emails in the INBOX
         status, messages = self._imap_connection.select("INBOX")
-        stat, data = self._imap_connection.search(None, 'ALL')
+        stat, data = self._imap_connection.search(None, 'UnSeen')
 
         mail_list = []
 
