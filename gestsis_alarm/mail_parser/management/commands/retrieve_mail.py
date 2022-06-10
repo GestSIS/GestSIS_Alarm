@@ -3,6 +3,7 @@ from ...tasks.mail_retriever import MailRetriever
 
 import os
 
+
 class Command(BaseCommand):
     help = "Retrieve PDF from mail server and store it into the pdf folder"
 
@@ -24,7 +25,7 @@ class Command(BaseCommand):
             if not options[option]:
                 raise ValueError("'{}' cannot be empty or None ! Specify it with the command line or in the .env file !".format(option))
 
-        mc = MailRetriever(options["mail_server"], options["port"], options["username"], options["password"], options["mails_to_whitelist"])
+        mc = MailRetriever(options["server"], options["port"], options["username"], options["password"], options["whitelisted_mails"])
         pdf_downloaded = mc.check_for_new_messages()
         print("{} file(s) retrieved".format(len(pdf_downloaded)))
         [print("- {}".format(f)) for f in pdf_downloaded]
