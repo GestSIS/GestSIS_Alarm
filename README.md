@@ -44,11 +44,13 @@ pip install -r requirements.txt
 
 You need to specify some variables before running the application. Luckily, the project have a template file :)
 
+You can use the helper script `init_key.py` to do the step 4 and 5 for you if you want.
+
 4. Copy the `.env.example` file to `.env` (It's in the `gestsis_alarm` folder)
 ```bash
 cp gestsis_alarm/.env.example gestsis_alarm/.env
 ```
-5. Generate a secret key and put it into the `.env` file (`GESTSIS_ALARM_SECRET_KEY`)
+5. Generate a secret key and put it into the `.env` file (`GESTSIS_ALARM_SECRET_KEY`).
 ```bash
 python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
 ```
