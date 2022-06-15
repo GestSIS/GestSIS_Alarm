@@ -15,7 +15,10 @@ class Command(BaseCommand):
             if not os.path.isabs(string):
                 string = os.path.join(settings.MEDIA_ROOT, string)
 
-            return os.path.exists(string)
+            if os.path.exists(string):
+                return string
+            else:
+                raise FileNotFoundError(string)
 
         parser.add_argument('pdf_file', type=file_path, help="Path to the pdf file, can be absolute or relative. If relative, the root folder is storage")
 
