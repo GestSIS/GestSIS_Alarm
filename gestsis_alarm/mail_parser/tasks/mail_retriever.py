@@ -52,9 +52,12 @@ class MailRetriever:
         :rtype: list
         """
         status, messages = self._imap_connection.select("INBOX")
-        stat, data = self._imap_connection.search(None, 'UnSeen')
+        search_status, data = self._imap_connection.search(None, 'UnSeen')
 
         mail_list = []
+
+        if search_status != "OK":
+            return []
 
         for mail_id in data[0].split():
             content = self._fetch_message(mail_id)
@@ -77,6 +80,10 @@ class MailRetriever:
         :rtype: email.message.Message or None
         """
         status, data = self._imap_connection.fetch(mail_id, '(RFC822)')
+
+        if status != "OK":
+            return None
+
         response_part = data[0][1]
 
         message = email.message_from_bytes(response_part, policy=email.policy.default)
