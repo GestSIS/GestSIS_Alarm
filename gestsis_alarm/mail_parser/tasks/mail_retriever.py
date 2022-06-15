@@ -95,10 +95,10 @@ class MailRetriever:
     @staticmethod
     def _save_attachment(msg: email.message.Message):
         """
-        Check if there a PDF as attachment in the message and save it on the disk
+        Check if there is a PDF as attachment in the message and save it on the disk
         :param
           msg: email.message.Message
-            The message where an pdf attachment is
+            The message where a pdf attachment is
         :return: A list of filename that the method downloaded from the message
         :rtype: list
         """
