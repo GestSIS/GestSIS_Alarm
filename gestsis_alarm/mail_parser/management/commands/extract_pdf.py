@@ -1,8 +1,7 @@
 from django.core.management import BaseCommand
 import os.path
 from django.conf import settings
-
-from gestsis_alarm.mail_parser.tasks.pdf_extraction import PDFExtractor
+from ...tasks.pdf_extraction import PDFExtractor
 
 
 class Command(BaseCommand):
