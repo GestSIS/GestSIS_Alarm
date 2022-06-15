@@ -44,7 +44,7 @@ pip install -r requirements.txt
 
 You need to specify some variables before running the application. Luckily, the project have a template file :)
 
-You can use the helper script `init_key.py` to do the step 4 and 5 for you if you want.
+You can use the helper script `init.py` to do the step 4 and 5 for you if you want.
 
 4. Copy the `.env.example` file to `.env` (It's in the `gestsis_alarm` folder)
 ```bash
