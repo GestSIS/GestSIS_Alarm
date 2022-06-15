@@ -81,7 +81,7 @@ class MailRetriever:
 
         message = email.message_from_bytes(response_part)
 
-        if "from" not in message or "subject" not in message:
+        if "from" not in message:
             return None  # Shouldn't happen, but better to be sure
 
         # Discard message if there is no attachment for us
@@ -89,7 +89,6 @@ class MailRetriever:
             return None
 
         mail_from = message['from']
-        mail_subject = message['subject']
 
         # Check if mail address is in the whitelist
         if email.utils.parseaddr(mail_from)[1] not in self._mail_whitelist:
