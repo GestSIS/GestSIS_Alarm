@@ -33,7 +33,7 @@ python -m venv .venv
 # Windows
 .venv/Scripts/activate.bat
 # Linux
-source .ven/bin/activate
+source .venv/bin/activate
 ```
 3. Install the dependencies
 ```
