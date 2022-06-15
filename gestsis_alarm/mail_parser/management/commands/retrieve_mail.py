@@ -18,6 +18,8 @@ class Command(BaseCommand):
                             help="Can be a username or your email address depending on your email provider")
         parser.add_argument('--password', type=str, default=os.environ.get("GESTSIS_ALARM_MAIL_PASSWORD", None))
         parser.add_argument('--whitelisted-mails', nargs='+', type=str, default=os.environ.get("GESTSIS_ALARM_MAIL_WHITELIST", None))
+        parser.add_argument('--use-starttls', action="store_true",
+                            help="If given, the connection to the mail server will use STARTTLS instead of IMAPs")
 
     def handle(self, *args, **options):
 
@@ -28,7 +30,12 @@ class Command(BaseCommand):
         if type(options["whitelisted_mails"]) == str:
             options["whitelisted_mails"] = options["whitelisted_mails"].strip(",")
 
-        mc = MailRetriever(options["server"], options["port"], options["username"], options["password"], options["whitelisted_mails"])
+        mc = MailRetriever(options["server"],
+                           options["port"],
+                           options["username"],
+                           options["password"],
+                           options["whitelisted_mails"],
+                           options["use_starttls"])
         pdf_downloaded = mc.check_for_new_messages()
         print("{} file(s) retrieved".format(len(pdf_downloaded)))
         [print("- {}".format(f)) for f in pdf_downloaded]
