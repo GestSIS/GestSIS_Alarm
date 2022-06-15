@@ -79,7 +79,7 @@ class MailRetriever:
         status, data = self._imap_connection.fetch(mail_id, '(RFC822)')
         response_part = data[0][1]
 
-        message = email.message_from_bytes(response_part)
+        message = email.message_from_bytes(response_part, policy=email.policy.default)
 
         if "from" not in message:
             return None  # Shouldn't happen, but better to be sure
