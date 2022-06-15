@@ -11,9 +11,14 @@ class MailRetriever:
     _imap_connection = None
     _mail_whitelist = []
 
-    def __init__(self, mail_server: str, port: int, username: str, password: str, mail_whitelist: list):
+    def __init__(self, mail_server: str, port: int, username: str, password: str, mail_whitelist: list, use_starttls=False):
 
-        self._imap_connection = imaplib.IMAP4_SSL(mail_server, port)
+        if use_starttls:  # Use StartTLS -> Unencrypted IMAP connection then request to encrypt with starttls
+            self._imap_connection = imaplib.IMAP4(mail_server, port)
+            self._imap_connection.starttls()
+        else:  # IMAPs -> IMAP over SSL/TLS (The connection is encrypted from the start
+            self._imap_connection = imaplib.IMAP4_SSL(mail_server, port)
+
         self._imap_connection.login(username, password)
 
         self._mail_whitelist = mail_whitelist
