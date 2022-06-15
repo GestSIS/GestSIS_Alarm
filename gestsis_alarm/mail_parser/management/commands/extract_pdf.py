@@ -5,9 +5,7 @@ from ...tasks.pdf_extraction import PDFExtractor
 
 
 class Command(BaseCommand):
-    help = "Retrieve PDF from mail server and store it into the pdf folder"
-
-    _required_options = ["server", "port", "username", "password", "whitelisted_mails"]
+    help = "Extract data from the mobilisation report"
 
     def add_arguments(self, parser):
 
