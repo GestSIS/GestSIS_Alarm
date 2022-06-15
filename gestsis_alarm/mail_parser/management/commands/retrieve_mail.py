@@ -16,8 +16,10 @@ class Command(BaseCommand):
                             help="Port of the mail server")
         parser.add_argument('--username', type=str, default=os.environ.get("GESTSIS_ALARM_MAIL_USERNAME", None),
                             help="Can be a username or your email address depending on your email provider")
-        parser.add_argument('--password', type=str, default=os.environ.get("GESTSIS_ALARM_MAIL_PASSWORD", None))
-        parser.add_argument('--whitelisted-mails', nargs='+', type=str, default=os.environ.get("GESTSIS_ALARM_MAIL_WHITELIST", None))
+        parser.add_argument('--password', type=str, default=os.environ.get("GESTSIS_ALARM_MAIL_PASSWORD", None),
+                            help="Password to connect to your mail server")
+        parser.add_argument('--whitelisted-mails', nargs='+', type=str, default=os.environ.get("GESTSIS_ALARM_MAIL_WHITELIST", None),
+                            help="The script will only download PDF from the mails addresses")
         parser.add_argument('--use-starttls', action="store_true",
                             help="If given, the connection to the mail server will use STARTTLS instead of IMAPs")
 
