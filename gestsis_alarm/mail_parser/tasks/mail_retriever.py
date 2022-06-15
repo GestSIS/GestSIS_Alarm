@@ -110,8 +110,8 @@ class MailRetriever:
 
         for part in msg.walk():
             # Check if we have a PDF (The extension check is here to be extra sure)
-            if part.get_content_type() == "application/pdf" and Path(part.get_filename()).suffix == ".pdf":
 
+            if part.get_content_type() in ["application/pdf", "application/octet-stream"] and Path(part.get_filename().strip()).suffix == ".pdf":
                 filename = datetime.now().strftime("%Y_%m_%d_%H_%M_%S") + "_" + str(uuid.uuid4()) + ".pdf"
                 filepath = os.path.join(settings.MEDIA_ROOT, "pdf", filename)
 
