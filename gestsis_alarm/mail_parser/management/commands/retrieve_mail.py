@@ -30,7 +30,7 @@ class Command(BaseCommand):
                 raise ValueError("'{}' cannot be empty or None ! Specify it with the command line or in the .env file !".format(option))
 
         if type(options["whitelisted_mails"]) == str:
-            options["whitelisted_mails"] = options["whitelisted_mails"].strip(",")
+            options["whitelisted_mails"] = options["whitelisted_mails"].split(",")
 
         mc = MailRetriever(options["server"],
                            options["port"],
