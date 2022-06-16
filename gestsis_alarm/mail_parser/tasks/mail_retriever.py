@@ -56,7 +56,7 @@ class MailRetriever:
 
         mail_list = []
 
-        # Shouldn't have to check the data field, but some server doesn't play by the rules
+        # Shouldn't have to check the data field, but some servers doesn't play by the rules
         if search_status != "OK" or not data or not data[0]:
             return []
 
@@ -82,7 +82,7 @@ class MailRetriever:
         """
         status, data = self._imap_connection.fetch(mail_id, '(RFC822)')
 
-        # Shouldn't have to check the data field, but some server doesn't play by the rules
+        # Shouldn't have to check the data field, but some servers doesn't play by the rules
         if status != "OK" or not data or not data[0]:
             return None
 
