@@ -56,7 +56,8 @@ class MailRetriever:
 
         mail_list = []
 
-        if search_status != "OK":
+        # Shouldn't have to check the data field, but some server doesn't play by the rules
+        if search_status != "OK" or not data or not data[0]:
             return []
 
         for mail_id in data[0].split():
@@ -81,7 +82,8 @@ class MailRetriever:
         """
         status, data = self._imap_connection.fetch(mail_id, '(RFC822)')
 
-        if status != "OK":
+        # Shouldn't have to check the data field, but some server doesn't play by the rules
+        if status != "OK" or not data or not data[0]:
             return None
 
         response_part = data[0][1]
