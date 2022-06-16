@@ -21,7 +21,7 @@ class MailRetriever:
 
         self._imap_connection.login(username, password)
 
-        self._mail_whitelist = mail_whitelist
+        self._mail_whitelist = [m.lower() for m in mail_whitelist]
 
     def check_for_new_messages(self, delete_on_read=False):
         """
@@ -100,7 +100,7 @@ class MailRetriever:
         mail_from = message['from']
 
         # Check if mail address is in the whitelist
-        if email.utils.parseaddr(mail_from)[1] not in self._mail_whitelist:
+        if email.utils.parseaddr(mail_from)[1].lower() not in self._mail_whitelist:
             return None
 
         return message
