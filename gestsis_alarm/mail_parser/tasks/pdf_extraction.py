@@ -85,15 +85,13 @@ class PDFExtractor:
 
             for element in page_layout:
 
-                print(element)
-                print(type(element))
-
-                if self._filter_garbage(element):
+                # Discard lines, figure and image from being processed
+                if not isinstance(element, LTTextContainer):
                     continue
 
                 if reading_mode is None:
                     # The list of firefighter only appears after "Statistiques par Service"
-                    if isinstance(element, LTTextContainer) and element.get_text() == "Statistiques par Service\n":
+                    if element.get_text() == "Statistiques par Service\n":
                         reading_mode = ReadingMode.SEARCH_SIS
                         continue
 
@@ -115,15 +113,12 @@ class PDFExtractor:
                 # Extract the number of firefighter coming. It's used for verification when parsing the list of firefighter
                 if reading_mode == ReadingMode.SEARCH_STATS:
 
-                    if isinstance(element, LTTextContainer):
-                        match_starts = self.re_pattern_stats.match(element.get_text().strip())
+                    match_stats = self.re_pattern_stats.match(element.get_text().strip())
 
-                        if match_starts:
-                            current_firefighter_stats = int(match_starts.group(1))
-                            print("STAT : {}".format(current_firefighter_stats))
-
-                            reading_mode = ReadingMode.SEARCH_FIREFIGHTER
-                            continue
+                    if match_stats:
+                        current_firefighter_stats = int(match_stats.group(1))
+                        reading_mode = ReadingMode.SEARCH_FIREFIGHTER
+                        continue
 
                 if reading_mode == ReadingMode.SEARCH_FIREFIGHTER:
 
