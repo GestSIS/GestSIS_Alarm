@@ -72,6 +72,7 @@ class PDFExtractor:
         data_extracted = PDFData()
 
         # Search for the information given at the first page (Alarm type, address, coordinates, etc.)
+        # This needs to need done in a separate extraction because the characters recognition parameters are not the same as the firefighters ones.
         message = self._extract_message(filename)
         data_extracted.add_message_info(message[0], message[1], message[2])
 
@@ -157,7 +158,7 @@ class PDFExtractor:
 
         for element in page_layout:
             # Search for the string "Message".
-            # With the parameter given to pdfminer.six, the title "Message" and the message content are glued together
+            # With the parameters given to pdfminer.six, the title "Message" and the message content are glued together
             if isinstance(element, LTTextContainer) and element.get_text().startswith("Message\n"):
                 return self._extract_info_from_message(element.get_text().replace("Message\n", ""))
 
@@ -192,6 +193,12 @@ class PDFExtractor:
 
     @staticmethod
     def _is_it_sis_title(title_element):
+        """
+        Check if the current text is a title. It checks by verifying if the font size of the first character is 12
+        :param title_element:
+        :return: True if it is a title, otherwise False
+        """
+
         if isinstance(title_element, LTTextLine):
             first_char = next(title_element.__iter__())
         elif isinstance(title_element, LTTextContainer):
