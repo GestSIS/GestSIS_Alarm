@@ -69,18 +69,6 @@ class PDFExtractor:
                         reading_mode = ReadingMode.SEARCH_SIS
                         continue
 
-                # Search for the firefighter who come
-                """
-                elif reading_mode == ReadingMode.SEARCH_SIS:
-
-                    if isinstance(element, LTTextContainer):
-                        first_char = next(next(element.__iter__()).__iter__())
-                        if round(first_char.size) == 12:
-                            print("SIS FOUND")
-                            current_group_found, current_sis_found = [e.strip() for e in element.get_text().split(",")]
-                            reading_mode = ReadingMode.SEARCH_FIREFIGHTER
-                            continue"""
-
                 if reading_mode == ReadingMode.SEARCH_SIS:
 
                     if self._is_it_sis_title(element):
