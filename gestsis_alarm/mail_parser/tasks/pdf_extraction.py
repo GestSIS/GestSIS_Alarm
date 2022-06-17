@@ -15,11 +15,40 @@ class PDFData:
     lv95_coordinate = None
     event_address = None
     firefighter_coming = {}
+    _current_group = None
+    _current_sis = None
 
     def add_message_info(self, alarm_type, event_address, lv95_coordinate):
         self.alarm_type = alarm_type
         self.lv95_coordinate = lv95_coordinate
         self.event_address = event_address
+
+    def add_firefighter_to_current_group(self, firefighter):
+        if not self._current_sis or not self._current_group:
+            return False
+
+        self.firefighter_coming[self._current_sis][self._current_group].append(firefighter)
+
+        return True
+
+    def add_sis(self, name: str):
+        if name in self.firefighter_coming:
+            return False
+
+        self.firefighter_coming[name] = {}
+        self._current_sis = name
+
+        return True
+
+    def add_group(self, name: str):
+        if not self._current_sis or name in self.firefighter_coming[self._current_sis]:
+            return False
+
+        self.firefighter_coming[self._current_sis][name] = []
+        self._current_group = name
+
+        return True
+
 
     def add_firefighters(self, sis, group, firefighters):
         if sis not in self.firefighter_coming:
@@ -47,10 +76,6 @@ class PDFExtractor:
         data_extracted.add_message_info(message[0], message[1], message[2])
 
         # The loop here is to found firefighter and there respective group and SIS
-
-        current_sis_found = None
-        current_group_found = None
-        current_firefighter_found = []
         current_firefighter_stats = -1
 
         reading_mode = None
@@ -79,8 +104,9 @@ class PDFExtractor:
                         # if current_group_found is not None:
                         #     data_extracted.add_firefighters(current_sis_found, current_group_found, current_firefighter_found)
 
-                        current_group_found, current_sis_found = self._extract_sis_title(title_text=element.get_text())
-                        current_firefighter_found = []
+                        current_group, current_sis = self._extract_sis_title(title_text=element.get_text())
+                        data_extracted.add_sis(current_sis)
+                        data_extracted.add_group(current_group)
 
                         reading_mode = ReadingMode.SEARCH_STATS
                         continue
@@ -105,14 +131,13 @@ class PDFExtractor:
                             if isinstance(el, LTTextLine):
                                 match_firefighter = self.re_patter_firefighter.match(el.get_text().strip())
                                 if match_firefighter and match_firefighter.group(4) == "Vient":
-                                    current_firefighter_found.append(match_firefighter.group(1))
-                                    print(current_firefighter_found)
+                                    data_extracted.add_firefighter_to_current_group(match_firefighter.group(1))
                                 elif self._is_it_sis_title(el):
-                                    if current_group_found is not None:
-                                        data_extracted.add_firefighters(current_sis_found, current_group_found, current_firefighter_found)
                                     print(el.get_text())
-                                    current_group_found, current_sis_found = self._extract_sis_title(title_text=el.get_text())
-                                    current_firefighter_found = []
+                                    current_group, current_sis = self._extract_sis_title(title_text=el.get_text())
+                                    data_extracted.add_sis(current_sis)
+                                    data_extracted.add_group(current_group)
+
                                     reading_mode = ReadingMode.SEARCH_STATS
                                     continue
 
