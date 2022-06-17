@@ -49,6 +49,14 @@ class PDFData:
 
         return True
 
+    def get_current_group(self):
+        if not self._current_sis or not self._current_group:
+            return None
+
+        return self.firefighter_coming[self._current_sis][self._current_group]
+
+    def get_current_group_name(self):
+        return "{}, {}".format(self._current_sis, self._current_group)
 
     def add_firefighters(self, sis, group, firefighters):
         if sis not in self.firefighter_coming:
