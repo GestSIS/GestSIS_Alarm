@@ -35,7 +35,7 @@ class PDFData:
 class PDFExtractor:
 
     def __init__(self):
-        self.re_patter_firefighter = re.compile(r"([\w ]+) (SMS|Paging|Téléphone) {2}((?:\+)?\d+) ([a-zA-Zé ]+)", flags=re.UNICODE)
+        self.re_patter_firefighter = re.compile(r"([\w\- ]+) (Téléphone) ((?: (?:(?:\+)?\d+)){1,2}) ([a-zA-Zé ]+)", flags=re.UNICODE)
 
     def extract_data(self, filename: str):
 
