@@ -1,5 +1,5 @@
-from pdfminer.high_level import extract_text, extract_text_to_fp, extract_pages
-from pdfminer.layout import LAParams, LTTextContainer, LTChar, LTFigure, LTLine, LTRect, LTTextLine
+from pdfminer.high_level import extract_pages
+from pdfminer.layout import LAParams, LTTextContainer, LTTextLine
 from enum import Enum
 import re
 
