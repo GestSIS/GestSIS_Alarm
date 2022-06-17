@@ -4,6 +4,10 @@ from enum import Enum
 import re
 
 
+class PDFExtractionException(Exception):
+    pass
+
+
 class ReadingMode(Enum):
     SEARCH_SIS = 1
     SEARCH_STATS = 2
@@ -169,7 +173,7 @@ class PDFExtractor:
             if len(nb_ff) == objective:
                 print("Verified for {}".format(pdf_data.get_current_group_name()))
             else:
-                raise Exception("Incorrect number of firefighter extracted for {}. (Objective: {}, Got: {})".format(
+                raise PDFExtractionException("Incorrect number of firefighter extracted for {}. (Objective: {}, Got: {})".format(
                     pdf_data.get_current_group_name(),
                     objective,
                     len(nb_ff)
@@ -182,7 +186,7 @@ class PDFExtractor:
         cleaned = [element.strip() for element in cleaned]
 
         if len(cleaned) != 5:
-            raise Exception("Invalid message, cannot retrieve informations, aborting...")
+            raise PDFExtractionException("Invalid message, cannot retrieve informations, aborting...")
 
         # 0 is Alarm type
         # 1 is address (and complement)
@@ -215,4 +219,3 @@ class PDFExtractor:
             return [e.strip() for e in a]
 
         return [e.strip() for e in title_text.split(" - ")]
-
