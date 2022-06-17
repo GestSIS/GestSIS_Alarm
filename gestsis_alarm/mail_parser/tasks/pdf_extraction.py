@@ -133,12 +133,7 @@ class PDFExtractor:
                                 data_extracted.add_firefighter_to_current_group(" ".join(match_firefighter.group(1).split()))
 
                             elif self._is_it_sis_title(el):
-                                nb_ff = data_extracted.get_current_group()
-                                if nb_ff is not None:
-                                    if len(nb_ff) == current_firefighter_stats:
-                                        print("Verified for {} ({})".format(data_extracted.get_current_group_name(), current_firefighter_stats))
-                                    else:
-                                        print("ERROR while parsing 1")
+                                self._verify_firefighter_extraction(data_extracted, current_firefighter_stats)
 
                                 current_group, current_sis = self._extract_sis_title(title_text=el.get_text())
                                 data_extracted.add_sis(current_sis)
@@ -147,12 +142,7 @@ class PDFExtractor:
                                 reading_mode = ReadingMode.SEARCH_STATS
                                 continue
 
-        nb_ff = data_extracted.get_current_group()
-        if nb_ff is not None:
-            if len(nb_ff) == current_firefighter_stats:
-                print("Verified for {}".format(data_extracted.get_current_group_name()))
-            else:
-                print("ERROR while parsing 2")
+        self._verify_firefighter_extraction(data_extracted, current_firefighter_stats)
 
         return data_extracted
 
@@ -171,6 +161,19 @@ class PDFExtractor:
                 return self._extract_info_from_message(element.get_text().replace("Message\n", ""))
 
         return None
+
+    @staticmethod
+    def _verify_firefighter_extraction(pdf_data: PDFData, objective: int):
+        nb_ff = pdf_data.get_current_group()
+        if nb_ff is not None:
+            if len(nb_ff) == objective:
+                print("Verified for {}".format(pdf_data.get_current_group_name()))
+            else:
+                raise Exception("Incorrect number of firefighter extracted for {}. (Objective: {}, Got: {})".format(
+                    pdf_data.get_current_group_name(),
+                    objective,
+                    len(nb_ff)
+                ))
 
     @staticmethod
     def _extract_info_from_message(text):
