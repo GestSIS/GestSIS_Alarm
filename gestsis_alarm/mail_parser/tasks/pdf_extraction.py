@@ -5,8 +5,8 @@ import re
 
 
 class ReadingMode(Enum):
-    MESSAGE = 1,
-    SEARCH_SIS = 2
+    SEARCH_SIS = 1
+    SEARCH_STATS = 2
     SEARCH_FIREFIGHTER = 3
 
 
@@ -36,6 +36,7 @@ class PDFExtractor:
 
     def __init__(self):
         self.re_patter_firefighter = re.compile(r"([\w\- ]+) (Téléphone) ((?: (?:(?:\+)?\d+)){1,2}) ([a-zA-Zé ]+)", flags=re.UNICODE)
+        self.re_pattern_stats = re.compile(r"Viennent: (\d+)")
 
     def extract_data(self, filename: str):
 
@@ -50,6 +51,7 @@ class PDFExtractor:
         current_sis_found = None
         current_group_found = None
         current_firefighter_found = []
+        current_firefighter_stats = -1
 
         reading_mode = None
 
@@ -74,12 +76,29 @@ class PDFExtractor:
                     if self._is_it_sis_title(element):
                         print("SIS FOUND")
 
-                        if current_group_found is not None:
-                            data_extracted.add_firefighters(current_sis_found, current_group_found, current_firefighter_found)
+                        # if current_group_found is not None:
+                        #     data_extracted.add_firefighters(current_sis_found, current_group_found, current_firefighter_found)
 
                         current_group_found, current_sis_found = self._extract_sis_title(title_text=element.get_text())
                         current_firefighter_found = []
+
+                        reading_mode = ReadingMode.SEARCH_STATS
                         continue
+
+                # Extract the number of firefighter coming. It's used for verification when parsing the list of firefighter
+                if reading_mode == ReadingMode.SEARCH_STATS:
+
+                    if isinstance(element, LTTextContainer):
+                        match_starts = self.re_pattern_stats.match(element.get_text().strip())
+
+                        if match_starts:
+                            current_firefighter_stats = int(match_starts.group(1))
+                            print("STAT : {}".format(current_firefighter_stats))
+
+                            reading_mode = ReadingMode.SEARCH_FIREFIGHTER
+                            continue
+
+                if reading_mode == ReadingMode.SEARCH_FIREFIGHTER:
 
                     if isinstance(element, LTTextContainer):
                         for el in element:
@@ -94,6 +113,8 @@ class PDFExtractor:
                                     print(el.get_text())
                                     current_group_found, current_sis_found = self._extract_sis_title(title_text=el.get_text())
                                     current_firefighter_found = []
+                                    reading_mode = ReadingMode.SEARCH_STATS
+                                    continue
 
                                 print(match_firefighter)
 
