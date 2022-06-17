@@ -216,8 +216,3 @@ class PDFExtractor:
 
         return [e.strip() for e in title_text.split(" - ")]
 
-
-if __name__ == "__main__":
-    extractor = PDFExtractor()
-    data = extractor.extract_data("pdf/test_real.pdf")
-    print(data)
