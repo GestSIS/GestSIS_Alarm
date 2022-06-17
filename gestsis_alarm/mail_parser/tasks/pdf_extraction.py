@@ -111,6 +111,8 @@ class PDFExtractor:
                         reading_mode = ReadingMode.SEARCH_SIS
                         continue
 
+                # Search for text similar to a title
+                # It works because after "Statistiques par Service", the only titles are ones containing a group name
                 if reading_mode == ReadingMode.SEARCH_SIS:
 
                     if self._is_it_sis_title(element):
@@ -121,7 +123,8 @@ class PDFExtractor:
                         reading_mode = ReadingMode.SEARCH_STATS
                         continue
 
-                # Extract the number of firefighter coming. It's used for verification when parsing the list of firefighter
+                # Extract the number of firefighter coming.
+                # It's used for verification when parsing the list of firefighter
                 if reading_mode == ReadingMode.SEARCH_STATS:
 
                     match_stats = self.re_pattern_stats.match(element.get_text().strip())
@@ -131,6 +134,7 @@ class PDFExtractor:
                         reading_mode = ReadingMode.SEARCH_FIREFIGHTER
                         continue
 
+                # Extract the list of firefighter that comes to the intervention
                 if reading_mode == ReadingMode.SEARCH_FIREFIGHTER:
 
                     for el in element:
@@ -138,6 +142,7 @@ class PDFExtractor:
 
                             match_firefighter = self.re_patter_firefighter.match(el.get_text().strip())
                             if match_firefighter and match_firefighter.group(4) == "Vient":
+                                # The name is split and join back to back to remove multiple space between name
                                 data_extracted.add_firefighter_to_current_group(" ".join(match_firefighter.group(1).split()))
 
                             elif self._is_it_sis_title(el):
