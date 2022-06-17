@@ -98,11 +98,6 @@ class PDFExtractor:
                 if reading_mode == ReadingMode.SEARCH_SIS:
 
                     if self._is_it_sis_title(element):
-                        print("SIS FOUND")
-
-                        # if current_group_found is not None:
-                        #     data_extracted.add_firefighters(current_sis_found, current_group_found, current_firefighter_found)
-
                         current_group, current_sis = self._extract_sis_title(title_text=element.get_text())
                         data_extracted.add_sis(current_sis)
                         data_extracted.add_group(current_group)
