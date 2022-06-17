@@ -125,24 +125,34 @@ class PDFExtractor:
 
                 if reading_mode == ReadingMode.SEARCH_FIREFIGHTER:
 
-                    if isinstance(element, LTTextContainer):
-                        for el in element:
-                            if isinstance(el, LTTextLine):
-                                match_firefighter = self.re_patter_firefighter.match(el.get_text().strip())
-                                if match_firefighter and match_firefighter.group(4) == "Vient":
-                                    data_extracted.add_firefighter_to_current_group(match_firefighter.group(1))
-                                elif self._is_it_sis_title(el):
-                                    print(el.get_text())
-                                    current_group, current_sis = self._extract_sis_title(title_text=el.get_text())
-                                    data_extracted.add_sis(current_sis)
-                                    data_extracted.add_group(current_group)
+                    for el in element:
+                        if isinstance(el, LTTextLine):
 
-                                    reading_mode = ReadingMode.SEARCH_STATS
-                                    continue
+                            match_firefighter = self.re_patter_firefighter.match(el.get_text().strip())
+                            if match_firefighter and match_firefighter.group(4) == "Vient":
+                                data_extracted.add_firefighter_to_current_group(" ".join(match_firefighter.group(1).split()))
 
-                                print(match_firefighter)
+                            elif self._is_it_sis_title(el):
+                                nb_ff = data_extracted.get_current_group()
+                                if nb_ff is not None:
+                                    if len(nb_ff) == current_firefighter_stats:
+                                        print("Verified for {} ({})".format(data_extracted.get_current_group_name(), current_firefighter_stats))
+                                    else:
+                                        print("ERROR while parsing 1")
 
-                    print("MODE CHANGED")
+                                current_group, current_sis = self._extract_sis_title(title_text=el.get_text())
+                                data_extracted.add_sis(current_sis)
+                                data_extracted.add_group(current_group)
+
+                                reading_mode = ReadingMode.SEARCH_STATS
+                                continue
+
+        nb_ff = data_extracted.get_current_group()
+        if nb_ff is not None:
+            if len(nb_ff) == current_firefighter_stats:
+                print("Verified for {}".format(data_extracted.get_current_group_name()))
+            else:
+                print("ERROR while parsing 2")
 
         return data_extracted
 
