@@ -189,17 +189,6 @@ class PDFExtractor:
         return cleaned[0], cleaned[1], cleaned[3]
 
     @staticmethod
-    def _filter_garbage(element):
-        if isinstance(element, LTFigure) or isinstance(element, LTLine) or isinstance(element, LTRect):
-            return False
-
-        if isinstance(element, LTTextContainer) and re.match(r"Page: \d+", element.get_text()):
-            print("FOOTER")
-            return True
-
-        return False
-
-    @staticmethod
     def _is_it_sis_title(title_element):
         """
         Check if the current text is a title. It checks by verifying if the font size of the first character is 12
