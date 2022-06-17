@@ -15,6 +15,9 @@ class ReadingMode(Enum):
 
 
 class PDFData:
+    """
+    Sort of a container to store the information extracted from the PDF
+    """
     alarm_type = None
     lv95_coordinate = None
     event_address = None
@@ -27,7 +30,7 @@ class PDFData:
         self.lv95_coordinate = lv95_coordinate
         self.event_address = event_address
 
-    def add_firefighter_to_current_group(self, firefighter):
+    def add_firefighter_to_current_group(self, firefighter: str):
         if not self._current_sis or not self._current_group:
             return False
 
@@ -70,7 +73,8 @@ class PDFData:
             self.firefighter_coming[sis][group] = [e for e in firefighters]
 
     def __str__(self):
-        return "Alarm Type: {}\nLV95: {}\nAddress: {}\nFirefighters: {}".format(self.alarm_type, self.lv95_coordinate, self.event_address, self.firefighter_coming)
+        return "Alarm Type: {}\nLV95: {}\nAddress: {}\nFirefighters: {}".format(self.alarm_type, self.lv95_coordinate, self.event_address,
+                                                                                self.firefighter_coming)
 
 
 class PDFExtractor:
@@ -150,10 +154,12 @@ class PDFExtractor:
 
         return data_extracted
 
-    def _extract_message(self, filename):
+    def _extract_message(self, filename: str):
         """
         Search and extract information given in the first page (ie. Alarm type, address, coordinates, ...)
-        :param filename: Filename of the PDF
+        :param
+            filename: str
+              Filename of the PDF
         :return: A tuple containing the information otherwise None if nothing is found
         """
         page_layout = next(extract_pages(filename, maxpages=1, laparams=LAParams(line_margin=2, boxes_flow=0.8)))
@@ -168,6 +174,16 @@ class PDFExtractor:
 
     @staticmethod
     def _verify_firefighter_extraction(pdf_data: PDFData, objective: int):
+        """
+        Verify that the number of firefighters extracted in the list is the same as the one given in parameter
+        :param
+            pdf_data: PDFData
+              The data extracted from the PDF
+        :param
+            objective: int
+              The number of firefighter the group should have
+        :raise: PDFExtractionException if the number is not the same
+        """
         nb_ff = pdf_data.get_current_group()
         if nb_ff is not None:
             if len(nb_ff) == objective:
@@ -180,9 +196,18 @@ class PDFExtractor:
                 ))
 
     @staticmethod
-    def _extract_info_from_message(text):
+    def _extract_info_from_message(message: str):
+        """
+        Return the information contained in the string. It must follow the format used by SAGA:
+          Alarm type;address,address complement;intervention complement;LV95 coordinate;CET JU
+        :param
+            message: str
+            The string containing the intervention information
+        :return: A tuple containing alarm_type, address (and complement) and LV95 coordinates)
+        :raise: PDFExtractionException if the format is not respected
+        """
         # Remove line return in the middle of the string and split
-        cleaned = text.replace("\n", "").split(";")
+        cleaned = message.replace("\n", "").split(";")
         cleaned = [element.strip() for element in cleaned]
 
         if len(cleaned) != 5:
@@ -198,8 +223,10 @@ class PDFExtractor:
     @staticmethod
     def _is_it_sis_title(title_element):
         """
-        Check if the current text is a title. It checks by verifying if the font size of the first character is 12
-        :param title_element:
+        Check if the current text is a title by verifying that the font size of the first character is 12
+        :param
+            title_element: LTTextLine, LTTextContainer
+              Element containing the title
         :return: True if it is a title, otherwise False
         """
 
