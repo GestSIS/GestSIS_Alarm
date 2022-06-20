@@ -9,6 +9,9 @@ class PDFExtractionException(Exception):
 
 
 class ReadingMode(Enum):
+    """
+    States from the State Machine used for parsing
+    """
     SEARCH_SIS = 1
     SEARCH_STATS = 2
     SEARCH_FIREFIGHTER = 3
@@ -121,11 +124,11 @@ class PDFExtractor:
                 # It works because after "Statistiques par Service", the only titles are ones containing a group name
                 if reading_mode == ReadingMode.SEARCH_SIS:
 
-                    for el in element:
-                        if isinstance(el, LTTextLine):
+                    for line in element:
+                        if isinstance(line, LTTextLine):
 
-                            if self._is_it_sis_title(el):
-                                current_group, current_sis = self._extract_sis_title(title_text=el.get_text())
+                            if self._is_it_sis_title(line):
+                                current_group, current_sis = self._extract_sis_title(title_text=line.get_text())
 
                                 # CRISP, CRISD and RTA are not in GestSIS, so we ignore them.
                                 if current_sis in ["CRISP", "CRISD", "RTA"]:
@@ -151,10 +154,10 @@ class PDFExtractor:
                 # Extract the list of firefighter that comes to the intervention
                 if reading_mode == ReadingMode.SEARCH_FIREFIGHTER:
 
-                    for el in element:
-                        if isinstance(el, LTTextLine):
+                    for line in element:
+                        if isinstance(line, LTTextLine):
 
-                            match_firefighter = self.re_patter_firefighter.match(el.get_text().strip())
+                            match_firefighter = self.re_patter_firefighter.match(line.get_text().strip())
                             if match_firefighter and match_firefighter.group(4) == "Vient":
                                 # The name is split and join back to back to remove multiple space between name
                                 data_extracted.add_firefighter_to_current_group(
@@ -162,10 +165,10 @@ class PDFExtractor:
                                     match_firefighter.group(3).strip()
                                 )
 
-                            elif self._is_it_sis_title(el):
+                            elif self._is_it_sis_title(line):
                                 self._verify_firefighter_extraction(data_extracted, current_firefighter_stats)
 
-                                current_group, current_sis = self._extract_sis_title(title_text=el.get_text())
+                                current_group, current_sis = self._extract_sis_title(title_text=line.get_text())
 
                                 if current_sis in ["CRISP", "CRISD", "RTA"]:
                                     reading_mode = ReadingMode.SEARCH_SIS
