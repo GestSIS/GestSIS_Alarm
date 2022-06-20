@@ -193,7 +193,7 @@ class PDFExtractor:
         nb_ff = pdf_data.get_current_group()
         if nb_ff is not None:
             if len(nb_ff) == objective:
-                print("Verified for {}".format(pdf_data.get_current_group_name()))
+                print("Stats: Successfully parsed {} ({})".format(pdf_data.get_current_group_name(), objective))
             else:
                 raise PDFExtractionException("Incorrect number of firefighter extracted for {}. (Objective: {}, Got: {})".format(
                     pdf_data.get_current_group_name(),
