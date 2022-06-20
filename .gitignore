@@ -38,3 +38,7 @@ MANIFEST
 
 .idea/
 
+# Environments variables
+.env
+
+*/storage/pdf/*.pdf
