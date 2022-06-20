@@ -39,23 +39,19 @@ source .venv/bin/activate
 ```
 pip install -r requirements.txt
 ```
-
-#### Populate the environment
-
-You need to specify some variables before running the application. Luckily, the project have a template file :)
-
-You can use the helper script `init.py` to do the step 4 and 5 for you if you want.
-
-4. Copy the `.env.example` file to `.env` (It's in the `gestsis_alarm` folder)
+4. Run the initialisation script
 ```bash
-cp gestsis_alarm/.env.example gestsis_alarm/.env
+python init.py
 ```
-5. Generate a secret key and put it into the `.env` file (`GESTSIS_ALARM_SECRET_KEY`).
-```bash
-python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
-```
+It will do two things :
+  - Copy the`.env.example` file to `.env`
+  - Populate the `.env` file with a secret key that will be used by Django
 
-#### Start !
+The script has done some jobs for you, but you need to do the last step :
+
+5. Open the configuration file (`gestsis_alarm/.env`) and specify the missing values.
+
+Theses are important because without them, the application won't function properly.
 
 6. Finally, you can run the app !
 ```bash
@@ -64,7 +60,7 @@ python gestsis_alarm/manage.py runserver
 
 ## Usage
 
-The projet has one command that you can execute without running the web server:
+The project has one command that you can execute without running the web server:
 
 ### retrieve_mail
 
