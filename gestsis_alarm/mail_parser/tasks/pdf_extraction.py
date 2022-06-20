@@ -177,8 +177,6 @@ class PDFExtractor:
                                 reading_mode = ReadingMode.SEARCH_STATS
                                 continue
 
-        self._verify_firefighter_extraction(data_extracted, current_firefighter_stats)
-
         return data_extracted
 
     def _extract_message(self, filename: str):
@@ -211,6 +209,7 @@ class PDFExtractor:
               The number of firefighter the group should have
         :raise: PDFExtractionException if the number is not the same
         """
+
         nb_ff = pdf_data.get_current_group()
         if nb_ff is not None:
             if len(nb_ff) == objective:
