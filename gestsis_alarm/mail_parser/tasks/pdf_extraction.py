@@ -30,11 +30,16 @@ class PDFData:
         self.lv95_coordinate = lv95_coordinate
         self.event_address = event_address
 
-    def add_firefighter_to_current_group(self, firefighter: str):
+    def add_firefighter_to_current_group(self, firefighter: str, phone: str):
         if not self._current_sis or not self._current_group:
             return False
 
-        self.firefighter_coming[self._current_sis][self._current_group].append(firefighter)
+        f = {
+            "name": firefighter,
+            "phone": phone
+        }
+
+        self.firefighter_coming[self._current_sis][self._current_group].append(f)
 
         return True
 
@@ -144,7 +149,10 @@ class PDFExtractor:
                             match_firefighter = self.re_patter_firefighter.match(el.get_text().strip())
                             if match_firefighter and match_firefighter.group(4) == "Vient":
                                 # The name is split and join back to back to remove multiple space between name
-                                data_extracted.add_firefighter_to_current_group(" ".join(match_firefighter.group(1).split()))
+                                data_extracted.add_firefighter_to_current_group(
+                                    " ".join(match_firefighter.group(1).split()),
+                                    match_firefighter.group(3).strip()
+                                )
 
                             elif self._is_it_sis_title(el):
                                 self._verify_firefighter_extraction(data_extracted, current_firefighter_stats)
