@@ -121,13 +121,21 @@ class PDFExtractor:
                 # It works because after "Statistiques par Service", the only titles are ones containing a group name
                 if reading_mode == ReadingMode.SEARCH_SIS:
 
-                    if self._is_it_sis_title(element):
-                        current_group, current_sis = self._extract_sis_title(title_text=element.get_text())
-                        data_extracted.add_sis(current_sis)
-                        data_extracted.add_group(current_group)
+                    for el in element:
+                        if isinstance(el, LTTextLine):
 
-                        reading_mode = ReadingMode.SEARCH_STATS
-                        continue
+                            if self._is_it_sis_title(el):
+                                current_group, current_sis = self._extract_sis_title(title_text=el.get_text())
+
+                                # CRISP, CRISD and RTA are not in GestSIS, so we ignore them.
+                                if current_sis in ["CRISP", "CRISD", "RTA"]:
+                                    continue
+
+                                data_extracted.add_sis(current_sis)
+                                data_extracted.add_group(current_group)
+
+                                reading_mode = ReadingMode.SEARCH_STATS
+                                break
 
                 # Extract the number of firefighter coming.
                 # It's used for verification when parsing the list of firefighter
@@ -158,6 +166,11 @@ class PDFExtractor:
                                 self._verify_firefighter_extraction(data_extracted, current_firefighter_stats)
 
                                 current_group, current_sis = self._extract_sis_title(title_text=el.get_text())
+
+                                if current_sis in ["CRISP", "CRISD", "RTA"]:
+                                    reading_mode = ReadingMode.SEARCH_SIS
+                                    break
+
                                 data_extracted.add_sis(current_sis)
                                 data_extracted.add_group(current_group)
 
