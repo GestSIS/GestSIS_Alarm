@@ -39,11 +39,12 @@ class PDFData:
         return True
 
     def add_sis(self, name: str):
+        self._current_sis = name
+
         if name in self.firefighter_coming:
             return False
 
         self.firefighter_coming[name] = {}
-        self._current_sis = name
 
         return True
 
