@@ -18,7 +18,8 @@ class Command(BaseCommand):
             else:
                 raise FileNotFoundError(string)
 
-        parser.add_argument('pdf_file', type=file_path, help="Path to the pdf file, can be absolute or relative. If relative, the root folder is storage")
+        parser.add_argument('pdf_file', type=file_path,
+                            help="Path to the pdf file, can be absolute or relative. If relative, the root folder is 'storage'")
 
     def handle(self, *args, **options):
 

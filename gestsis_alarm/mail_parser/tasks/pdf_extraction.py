@@ -267,6 +267,13 @@ class PDFExtractor:
 
     @staticmethod
     def _extract_sis_title(title_text: str):
+        """
+        Extract the group and SIS names from the string. Works both for comma and dash
+        :param
+            title_text: str
+              The text (string) containing the group and the SIS
+        :return: A tuple, with as first item the group and as the second, the SIS
+        """
         a = title_text.split(",")
         if len(a) == 2:
             return [e.strip() for e in a]
