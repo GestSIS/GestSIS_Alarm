@@ -7,7 +7,7 @@ def convert_lv95_to_wgs84(lv95_coordinate: str):
     :param
         lv95_coordinate: str
           LV95 Coordinate in format "E,N".
-    :return A tuple containing the WGS84 coordinate, First item is East, Second item is North.
+    :return A tuple containing the WGS84 coordinates, First item is East, Second item is North.
         If the coordinate given are invalid, None if returned
     """
     coord = lv95_coordinate.split(",")
