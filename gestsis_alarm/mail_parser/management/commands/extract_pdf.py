@@ -1,7 +1,9 @@
+import sys
+
 from django.core.management import BaseCommand
 import os.path
 from django.conf import settings
-from ...tasks.pdf_extraction import PDFExtractor
+from ...tasks.pdf_extraction import PDFExtractor, PDFExtractionException
 
 
 class Command(BaseCommand):
@@ -27,5 +29,11 @@ class Command(BaseCommand):
             options["pdf_file"] = os.path.join(settings.MEDIA_ROOT, options["pdf_file"])
 
         extractor = PDFExtractor()
-        data = extractor.extract_data(options["pdf_file"])
+
+        try:
+            data = extractor.extract_data(options["pdf_file"])
+        except PDFExtractionException as e:
+            print("ERROR while parsing : {}".format(e.message), file=sys.stderr)
+            return
+
         print(data)
