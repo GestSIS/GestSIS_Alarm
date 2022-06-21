@@ -38,6 +38,16 @@ class PDFData:
         self.event_address = event_address
 
     def add_firefighter_to_current_group(self, firefighter: str, phone: str):
+        """
+        Add Firefighter to the current group in the current SIS
+        :param
+            firefighter: str
+              The name of the firefighter
+        :param
+            phone: str
+              The phone number(s) of the firefighter, the string can contain multiple phone number
+        :return True if the firefighter has been added, otherwise False
+        """
         if not self._current_sis or not self._current_group:
             return False
 
@@ -46,11 +56,22 @@ class PDFData:
             "phone": phone
         }
 
+        if f in self.firefighter_coming[self._current_sis][self._current_group]:
+            return False
+
         self.firefighter_coming[self._current_sis][self._current_group].append(f)
 
         return True
 
     def add_sis(self, name: str):
+        """
+        Add SIS to the dictionary except if it's already in it.
+        The variable current_sis is ALWAYS MODIFIED by each call, even if the SIS is already in the dictionary
+        :param
+            name: str
+              Name of the SIS
+        :return: True if the SIS has been added, otherwise False
+        """
         self._current_sis = name
 
         if name in self.firefighter_coming:
@@ -61,6 +82,15 @@ class PDFData:
         return True
 
     def add_group(self, name: str):
+        """
+        Add a group to the dictionary except if it's already in it.
+        The variable current_group is modified ONLY if the group is not in the current SIS.
+        :param
+            name: str
+              Name of the group
+        :return: True if the group has been added, otherwise False
+        """
+
         if not self._current_sis or name in self.firefighter_coming[self._current_sis]:
             return False
 
@@ -77,13 +107,6 @@ class PDFData:
 
     def get_current_group_name(self):
         return "{}, {}".format(self._current_sis, self._current_group)
-
-    def add_firefighters(self, sis, group, firefighters):
-        if sis not in self.firefighter_coming:
-            self.firefighter_coming[sis] = {}
-
-        if group not in self.firefighter_coming[sis]:
-            self.firefighter_coming[sis][group] = [e for e in firefighters]
 
     def __str__(self):
         return "Alarm Type: {}\nLV95: {}\nAddress: {}\nFirefighters: {}".format(self.alarm_type, self.lv95_coordinate, self.event_address,
@@ -124,8 +147,9 @@ class PDFExtractor:
                         reading_mode = ReadingMode.SEARCH_SIS
                         continue
 
-                # Search for text similar to a title
-                # It works because after "Statistiques par Service", the only titles are ones containing a group name
+                # Search for text similar to a title.
+                # It works because after "Statistiques par Service",
+                # the only titles are the ones containing a group name
                 if reading_mode == ReadingMode.SEARCH_SIS:
 
                     for line in element:
@@ -168,8 +192,9 @@ class PDFExtractor:
                                     " ".join(match_firefighter.group(1).split()),
                                     match_firefighter.group(3).strip()
                                 )
-
                             elif self._is_it_sis_title(line):
+                                # Sometimes, titles are in the same block of text has the firefighter list
+
                                 self._verify_firefighter_extraction(data_extracted, current_firefighter_stats)
 
                                 current_group, current_sis = self._extract_sis_title(title_text=line.get_text())
