@@ -2,6 +2,7 @@ from pdfminer.high_level import extract_pages
 from pdfminer.layout import LAParams, LTTextContainer, LTTextLine
 from enum import Enum
 import re
+from collections import deque
 
 
 class PDFExtractionException(Exception):
@@ -119,6 +120,10 @@ class PDFExtractor:
     def __init__(self):
         self.re_patter_firefighter = re.compile(r"([\w\- ]+) (Téléphone) ((?: (?:(?:\+)?\d+)){1,2}) ([a-zA-Zé ]+)",
                                                 flags=re.UNICODE)
+        self.re_pattern_incomplete_firefighter = re.compile(r"([\w\- ]+) (Téléphone) ((?: (?:(?:\+)?\d+)))",
+                                                            flags=re.UNICODE)
+        self.re_pattern_phone = re.compile(r"(?:(?:\+)?\d{5,})")
+
         self.re_pattern_stats_come = re.compile(r"Viennent: (\d+)")
         self.re_pattern_stats_dont_come = re.compile(r"Appelés: \d+ Ne viennent pas: (\d+)")
 
@@ -139,15 +144,20 @@ class PDFExtractor:
         reading_mode = None
         last_text = None
 
+        # Queue that stores the three last lines that the script has read
+        last_lines = deque(maxlen=3)
+
         for page_layout in extract_pages(filename, laparams=LAParams(line_margin=0.5, boxes_flow=1, char_margin=25)):
 
             for element in page_layout:
 
-                #print(element)
+                # print(element)
 
                 # Discard lines, figure and image from being processed
                 if not isinstance(element, LTTextContainer):
                     continue
+
+                last_lines.append(element.get_text().strip())
 
                 if reading_mode is None:
                     # The list of firefighter only appears after "Statistiques par Service"
@@ -198,6 +208,15 @@ class PDFExtractor:
                                 if (label := match_firefighter.group(4)) in ["Pas atteint", "Ne vient pas"]:
                                     self.current_firefighter_real[label] += 1
 
+                            # When a person has three phone numbers, the page layout breaks and the informations
+                            # are all over the place. Luckily, the pattern is always the same and we need to search
+                            # for a phone number that is the only thing on the line
+                            elif match := self.re_pattern_phone.match(line.get_text().strip()):
+                                if len(last_lines) != 3:
+                                    continue
+
+                                self._handle_three_phone_numbers(match, last_lines)
+
                             elif self._is_it_sis_title(line):
 
                                 self._verify_firefighter_extraction(
@@ -214,6 +233,17 @@ class PDFExtractor:
                                     break
 
         return self.data_extracted
+
+    def _handle_three_phone_numbers(self, match, last_lines : deque):
+        if match_firefighter := self.re_pattern_incomplete_firefighter.match(last_lines[1]):
+            if last_lines[0] == "Vient":
+                self.data_extracted.add_firefighter_to_current_group(
+                    " ".join(match_firefighter.group(1).split()),
+                    match.group(1).strip() + " " + match_firefighter.group(3)
+                )
+
+            if (label := last_lines[0]) in ["Pas atteint", "Ne vient pas"]:
+                self.current_firefighter_real[label] += 1
 
     def _reset_current_stats(self):
         """
