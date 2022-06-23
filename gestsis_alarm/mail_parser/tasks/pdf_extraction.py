@@ -133,8 +133,9 @@ class PDFExtractor:
 
     def extract_data(self, filename: str):
 
-        # Search for the information given at the first page (Alarm type, address, coordinates, etc.)
-        # This needs to need done in a separate extraction because the characters recognition parameters are not the same as the firefighters ones.
+        # Search for the information given at the first page (Alarm type, address, coordinates, etc.).
+        # This needs to need done in a separate extraction
+        # because the characters recognition parameters are not the same as the firefighters ones.
         message = self._extract_message(filename)
         self.data_extracted.add_message_info(message[0], message[1], message[2])
 
@@ -198,24 +199,25 @@ class PDFExtractor:
 
                             match_firefighter = self.re_patter_firefighter.match(line.get_text().strip())
                             if match_firefighter:
-                                if match_firefighter.group(4) == "Vient":
+                                if (label := match_firefighter.group(4)) == "Vient":
                                     # The name is split and join back to back to remove multiple space between name
                                     self.data_extracted.add_firefighter_to_current_group(
                                         " ".join(match_firefighter.group(1).split()),
                                         match_firefighter.group(3).strip()
                                     )
 
-                                if (label := match_firefighter.group(4)) in ["Pas atteint", "Ne vient pas"]:
+                                if label in ["Pas atteint", "Ne vient pas"]:
                                     self.current_firefighter_real[label] += 1
 
                             # When a person has three phone numbers, the page layout breaks and the informations
                             # are all over the place. Luckily, the pattern is always the same and we need to search
                             # for a phone number that is the only thing on the line
                             elif match := self.re_pattern_phone.match(line.get_text().strip()):
+                                # Shouldn't happen, but we check that we have at least 3 lines in the queue
                                 if len(last_lines) != 3:
                                     continue
 
-                                self._handle_three_phone_numbers(match, last_lines)
+                                self._handle_three_phone_numbers(match.group(1).strip(), last_lines)
 
                             elif self._is_it_sis_title(line):
 
@@ -234,16 +236,36 @@ class PDFExtractor:
 
         return self.data_extracted
 
-    def _handle_three_phone_numbers(self, match, last_lines : deque):
+    def _handle_three_phone_numbers(self, first_phone_number: str, last_lines: deque):
+        """
+        Handle the parsing of a person with three phone numbers
+        :param
+            first_phone_number: str
+              The first phone number parsed by the script
+        :param
+            last_lines: deque
+              A queue containing the last three lines read by the parser
+        :return:
+        """
+
+        # The last_lines queue is composed has follow :
+        # - 0 : Status : Pas atteint/Ne vient pas or Vient
+        # - 1 : An incomplete firefighter line composed of the name and two phone numbers
+        # - 2 : The third phone number
+
+        # Check if the line before the phone number is an incomplete firefighter line
         if match_firefighter := self.re_pattern_incomplete_firefighter.match(last_lines[1]):
+
             if last_lines[0] == "Vient":
                 self.data_extracted.add_firefighter_to_current_group(
                     " ".join(match_firefighter.group(1).split()),
-                    match.group(1).strip() + " " + match_firefighter.group(3)
+                    first_phone_number + " " + match_firefighter.group(3)
                 )
+                return
 
             if (label := last_lines[0]) in ["Pas atteint", "Ne vient pas"]:
                 self.current_firefighter_real[label] += 1
+                return
 
     def _reset_current_stats(self):
         """
