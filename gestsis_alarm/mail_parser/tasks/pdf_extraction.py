@@ -117,7 +117,14 @@ class PDFData:
 
 class PDFExtractor:
 
-    def __init__(self):
+    def __init__(self, sis_whitelist: list):
+        """
+        :param
+            sis_whitelist: list
+              A list containing the name of the different SIS that will have their data retrieved
+        """
+        self._sis_whitelist = sis_whitelist
+
         self.re_patter_firefighter = re.compile(r"([\w\- ]+) (Téléphone) ((?: (?:(?:\+)?\d+)){1,2}) ([a-zA-Zé ]+)",
                                                 flags=re.UNICODE)
         self.re_pattern_incomplete_firefighter = re.compile(r"([\w\- ]+) (Téléphone) ((?: (?:(?:\+)?\d+)))",
@@ -209,7 +216,7 @@ class PDFExtractor:
                                 if label in ["Pas atteint", "Ne vient pas"]:
                                     self.current_firefighter_real[label] += 1
 
-                            # When a person has three phone numbers, the page layout breaks and the informations
+                            # When a person has three phone numbers, the page layout breaks and the information
                             # are all over the place. Luckily, the pattern is always the same and we need to search
                             # for a phone number that is the only thing on the line
                             elif match := self.re_pattern_phone.match(line.get_text().strip()):
@@ -295,8 +302,7 @@ class PDFExtractor:
     def _evaluate_title(self, line):
         current_group, current_sis = self._extract_sis_title(title_text=line.get_text())
 
-        # CRISP, CRISD and RTA are not in GestSIS, so we ignore them.
-        if current_sis in ["CRISP", "CRISD", "RTA"]:
+        if current_sis not in self._sis_whitelist:
             return False
 
         self.data_extracted.add_sis(current_sis)
