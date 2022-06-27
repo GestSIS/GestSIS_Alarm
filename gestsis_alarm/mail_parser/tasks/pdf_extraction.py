@@ -81,7 +81,7 @@ class PDFExtractor:
 
                 # Search for text similar to a title
                 # It works because after "Statistiques par Service", the only titles are ones containing a group name
-                if reading_mode == ReadingMode.SEARCH_SIS:
+                elif reading_mode == ReadingMode.SEARCH_SIS:
 
                     for line in element:
                         if isinstance(line, LTTextLine):
@@ -96,7 +96,7 @@ class PDFExtractor:
 
                 # Extract the number of firefighter coming.
                 # It's used for verification when parsing the list of firefighter
-                if reading_mode == ReadingMode.SEARCH_STATS:
+                elif reading_mode == ReadingMode.SEARCH_STATS:
 
                     if self._evaluate_stat_mode(element, last_text):
                         reading_mode = ReadingMode.SEARCH_FIREFIGHTER
@@ -105,7 +105,7 @@ class PDFExtractor:
                     last_text = element.get_text().strip()
 
                 # Extract the list of firefighter that comes to the intervention
-                if reading_mode == ReadingMode.SEARCH_FIREFIGHTER:
+                elif reading_mode == ReadingMode.SEARCH_FIREFIGHTER:
 
                     for line in element:
                         if isinstance(line, LTTextLine):
