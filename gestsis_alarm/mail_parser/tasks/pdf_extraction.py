@@ -4,6 +4,7 @@ from enum import Enum
 import re
 from collections import deque
 from .utils.pdf_data import PDFData
+from .utils.pdf_message import PDFMessage
 
 
 class PDFExtractionException(Exception):
@@ -50,7 +51,7 @@ class PDFExtractor:
         # This needs to need done in a separate extraction
         # because the characters recognition parameters are not the same as the firefighters ones.
         message = self._extract_message(filename)
-        self.data_extracted.add_message_info(message[0], message[1], message[2])
+        self.data_extracted.add_message_info(message)
 
         # The loop here is to found firefighter and there respective group and SIS
         self._reset_current_stats()
@@ -305,7 +306,7 @@ class PDFExtractor:
         # 2 is intervention complement
         # 3 is LV95 coordinate
         # 4 is "CET JU"
-        return cleaned[0], cleaned[1], cleaned[3]
+        return PDFMessage(alarm_type=cleaned[0], event_address=cleaned[1], intervention_complement=cleaned[2], lv95_coordinate=cleaned[3])
 
     @staticmethod
     def _is_sis_title(title_element):

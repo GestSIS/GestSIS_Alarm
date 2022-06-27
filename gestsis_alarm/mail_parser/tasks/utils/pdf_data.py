@@ -1,19 +1,16 @@
+from .pdf_message import PDFMessage
 
 class PDFData:
     """
     Sort of a container to store the information extracted from the PDF
     """
-    alarm_type = None
-    lv95_coordinate = None
-    event_address = None
+    message = None
     firefighter_coming = {}
     _current_group = None
     _current_sis = None
 
-    def add_message_info(self, alarm_type, event_address, lv95_coordinate):
-        self.alarm_type = alarm_type
-        self.lv95_coordinate = lv95_coordinate
-        self.event_address = event_address
+    def add_message_info(self, message: PDFMessage):
+        self.message = message
 
     def add_firefighter_to_current_group(self, firefighter: str, phone: str):
         """
@@ -87,6 +84,4 @@ class PDFData:
         return "{}, {}".format(self._current_sis, self._current_group)
 
     def __str__(self):
-        return "Alarm Type: {}\nLV95: {}\nAddress: {}\nFirefighters: {}".format(self.alarm_type, self.lv95_coordinate,
-                                                                                self.event_address,
-                                                                                self.firefighter_coming)
+        return "Message: {}\nFirefighters: {}".format(self.message, self.firefighter_coming)
