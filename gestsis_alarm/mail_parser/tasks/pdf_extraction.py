@@ -206,13 +206,13 @@ class PDFExtractor:
         return None
 
     def _evaluate_title(self, line):
-        current_group, current_sis = self._extract_sis_title(title_text=line.get_text())
+        group, sis = self._extract_sis_title(title_text=line.get_text())
 
-        if current_sis not in self._sis_whitelist:
+        if sis not in self._sis_whitelist:
             return False
 
-        self.data_extracted.add_sis(current_sis)
-        self.data_extracted.add_group(current_group)
+        self.data_extracted.add_sis(sis)
+        self.data_extracted.add_group(group)
 
         self._reset_current_stats()
 
