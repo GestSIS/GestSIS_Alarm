@@ -204,7 +204,7 @@ class PDFExtractor:
             if isinstance(element, LTTextContainer) and element.get_text().startswith("Message\n"):
                 return self._extract_info_from_message(element.get_text().replace("Message\n", ""))
 
-        return None
+        raise PDFExtractionException("Message not found")
 
     def _evaluate_title(self, line):
         group, sis = self._extract_sis_title(title_text=line.get_text())
