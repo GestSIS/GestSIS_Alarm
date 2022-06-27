@@ -33,10 +33,8 @@ class PDFExtractor:
         """
         self._sis_whitelist = sis_whitelist
 
-        self.re_patter_firefighter = re.compile(r"([\w\- ]+) (Téléphone) ((?: (?:(?:\+)?\d+)){1,2}) ([a-zA-Zé ]+)",
-                                                flags=re.UNICODE)
-        self.re_pattern_incomplete_firefighter = re.compile(r"([\w\- ]+) (Téléphone) ((?: (?:(?:\+)?\d+)))",
-                                                            flags=re.UNICODE)
+        self.re_pattern_firefighter = re.compile(r"([\w\- ]+) (Téléphone) ((?: (?:(?:\+)?\d+)){1,2}) ([a-zA-Zé ]+)", flags=re.UNICODE)
+        self.re_pattern_incomplete_firefighter = re.compile(r"([\w\- ]+) (Téléphone) ((?: (?:(?:\+)?\d+)))", flags=re.UNICODE)
         self.re_pattern_phone = re.compile(r"(?:(?:\+)?\d{5,})")
 
         self.re_pattern_stats_come = re.compile(r"Viennent: (\d+)")
@@ -88,7 +86,7 @@ class PDFExtractor:
                     for line in element:
                         if isinstance(line, LTTextLine):
 
-                            if self._is_it_sis_title(line):
+                            if self._is_sis_title(line):
 
                                 if self._evaluate_title(line):
                                     reading_mode = ReadingMode.SEARCH_STATS
@@ -112,7 +110,7 @@ class PDFExtractor:
                     for line in element:
                         if isinstance(line, LTTextLine):
 
-                            match_firefighter = self.re_patter_firefighter.match(line.get_text().strip())
+                            match_firefighter = self.re_pattern_firefighter.match(line.get_text().strip())
                             if match_firefighter:
                                 if (label := match_firefighter.group(4)) == "Vient":
                                     # The name is split and join back to back to remove multiple space between name
@@ -134,7 +132,7 @@ class PDFExtractor:
 
                                 self._handle_three_phone_numbers(match.group(1).strip(), last_lines)
 
-                            elif self._is_it_sis_title(line):
+                            elif self._is_sis_title(line):
 
                                 self._verify_firefighter_extraction(
                                     self.data_extracted,
@@ -310,7 +308,7 @@ class PDFExtractor:
         return cleaned[0], cleaned[1], cleaned[3]
 
     @staticmethod
-    def _is_it_sis_title(title_element):
+    def _is_sis_title(title_element):
         """
         Check if the current text is a title by verifying that the font size of the first character is 12
         :param
