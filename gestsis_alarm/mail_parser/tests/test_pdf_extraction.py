@@ -1,6 +1,5 @@
 from unittest import TestCase
-from gestsis_alarm.mail_parser.tasks.pdf_extraction import PDFExtractor, PDFExtractionException
-from gestsis_alarm.mail_parser.tasks.utils.pdf_data import PDFData
+from ..tasks.pdf_extraction import PDFExtractor, PDFExtractionException
 from pathlib import Path
 
 class TestPDFExtraction(TestCase):
