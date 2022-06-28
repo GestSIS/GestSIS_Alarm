@@ -24,7 +24,23 @@ class TestPDFExtraction(TestCase):
 
     def test_wrong_pdf(self):
         """Test with a file that doesn't have the correct architecture"""
-        filename = Path(self.pdf_dir, "pagelabels.pdf")
+        filename = Path(self.pdf_dir, "1_pagelabels.pdf")
 
         with self.assertRaises(PDFExtractionException):
             self.extractor.extract_data(filename)
+
+    def test_missing_semicolon_message(self):
+        """The message is almost correctly formed, only one semicolon is missing"""
+        filename = Path(self.pdf_dir, "2_test_missing_semicolon.pdf")
+
+        with self.assertRaises(PDFExtractionException) as e:
+            self.extractor.extract_data(filename)
+        self.assertEqual(e.exception.message, "Invalid message (Wrong number of semicolon)")
+
+    def test_not_an_intervention(self):
+        """When the message received is not an intervention but only an information. This type of message could be received in production"""
+        filename = Path(self.pdf_dir, "3_test_not_an_intervention.pdf")
+
+        with self.assertRaises(PDFExtractionException) as e:
+            self.extractor.extract_data(filename)
+        self.assertEqual(e.exception.message, "Invalid message (Wrong number of semicolon)")
