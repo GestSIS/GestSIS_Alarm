@@ -44,4 +44,6 @@ def convert_lv95_to_wgs84(lv95_coordinate: str):
           - (0.0447 * y2 * x) \
           - (0.0140 * x3)
 
-    return l * 100 / 36, phi * 100 / 36
+    # Round at the 6th decimal place, accuracy of about 10cm
+    # Source: https://gis.stackexchange.com/a/8674
+    return round(l * 100 / 36, 6), round(phi * 100 / 36, 6)
