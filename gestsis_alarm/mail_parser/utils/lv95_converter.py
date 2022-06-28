@@ -14,7 +14,10 @@ def convert_lv95_to_wgs84(lv95_coordinate: str):
     if len(coord) != 2:
         return None
 
-    east, north = float(coord[0]), float(coord[1])
+    try:
+        east, north = float(coord[0]), float(coord[1])
+    except ValueError:
+        return None
 
     # This section follows the official recommendation for converting LV95 to WGS84 given by the Swiss Confederation
     # https://www.swisstopo.admin.ch/en/knowledge-facts/surveying-geodesy/reference-frames/local/lv95.html
