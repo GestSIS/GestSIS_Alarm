@@ -299,7 +299,7 @@ class PDFExtractor:
         cleaned = [element.strip() for element in cleaned]
 
         if len(cleaned) != 5:
-            raise PDFExtractionException("Invalid message, cannot retrieve informations, aborting...")
+            raise PDFExtractionException("Invalid message (Wrong number of semicolon)")
 
         # 0 is Alarm type
         # 1 is address (and complement)
