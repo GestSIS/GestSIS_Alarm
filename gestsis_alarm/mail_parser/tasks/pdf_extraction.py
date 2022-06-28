@@ -35,7 +35,7 @@ class PDFExtractor:
         self._sis_whitelist = sis_whitelist
 
         self.re_pattern_firefighter = re.compile(r"([\w\- ]+) (Téléphone) ((?: (?:(?:\+)?\d+)){1,2}) ([a-zA-Zé ]+)", flags=re.UNICODE)
-        self.re_pattern_incomplete_firefighter = re.compile(r"([\w\- ]+) (Téléphone) ((?: (?:(?:\+)?\d+)))", flags=re.UNICODE)
+        self.re_pattern_incomplete_firefighter = re.compile(r"([\w\- ]+) (Téléphone) ((?: (?:(?:\+)?\d+)){2})", flags=re.UNICODE)
         self.re_pattern_phone = re.compile(r"(?:(?:\+)?\d{5,})")
 
         self.re_pattern_stats_come = re.compile(r"Viennent: (\d+)")
@@ -131,7 +131,7 @@ class PDFExtractor:
                                 if len(last_lines) != 3:
                                     continue
 
-                                self._handle_three_phone_numbers(match.group(1).strip(), last_lines)
+                                self._handle_three_phone_numbers(match.group(0).strip(), last_lines)
 
                             elif self._is_sis_title(line):
 
