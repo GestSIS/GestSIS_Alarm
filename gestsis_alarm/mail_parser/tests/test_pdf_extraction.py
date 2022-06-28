@@ -45,7 +45,7 @@ class TestPDFExtraction(TestCase):
         self.assertEqual(e.exception.message, "Invalid message (Wrong number of semicolon)")
 
     def test_message_extraction(self):
-        """Test if the message is correctly extracted (without complement). Happen frequently in production"""
+        """Test if the message is correctly extracted (without complement). Frequently occur in production"""
         filename = Path(self.pdf_dir, "4_test_valid.pdf")
 
         data = self.extractor.extract_data(filename)
