@@ -66,8 +66,6 @@ class PDFExtractor:
 
             for element in page_layout:
 
-                # print(element)
-
                 # Discard lines, figure and image from being processed
                 if not isinstance(element, LTTextContainer):
                     continue
