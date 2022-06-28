@@ -169,11 +169,10 @@ class PDFExtractor:
 
         # Check if the line before the phone number is an incomplete firefighter line
         if match_firefighter := self.re_pattern_incomplete_firefighter.match(last_lines[1]):
-
             if last_lines[0] == "Vient":
                 self.data_extracted.add_firefighter_to_current_group(
                     " ".join(match_firefighter.group(1).split()),
-                    first_phone_number + " " + match_firefighter.group(3)
+                    " ".join(match_firefighter.group(3).split()) + " " + first_phone_number
                 )
                 return
 
