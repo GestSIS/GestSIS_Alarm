@@ -19,6 +19,10 @@ def convert_lv95_to_wgs84(lv95_coordinate: str):
     except ValueError:
         return None
 
+    # The coordinates are outside of Switzerland
+    if east < 2480000 or east > 2840000 or north < 1060000.0 or north > 1300000:
+        return None
+
     # This section follows the official recommendation for converting LV95 to WGS84 given by the Swiss Confederation
     # https://www.swisstopo.admin.ch/en/knowledge-facts/surveying-geodesy/reference-frames/local/lv95.html
 
