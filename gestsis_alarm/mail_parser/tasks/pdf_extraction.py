@@ -53,7 +53,7 @@ class PDFExtractor:
         message = self._extract_message(filename)
         self.data_extracted.add_message_info(message)
 
-        # The loop here is to found firefighter and there respective group and SIS
+        # The loop here is to find firefighter and there respective group and SIS
         self._reset_current_stats()
 
         reading_mode = None

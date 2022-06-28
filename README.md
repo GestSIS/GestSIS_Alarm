@@ -105,7 +105,7 @@ python manage.py retrieve_mail --server mail.example.com --whitelisted-mails nor
 
 ### extract_pdf
 
-`extract_pdf` is the command extract data from a mobilisation report in PDF.
+`extract_pdf` is the command that extract data from a mobilisation report (PDF file).
 
 ```bash
 $ python manage.py extract_pdf -h
