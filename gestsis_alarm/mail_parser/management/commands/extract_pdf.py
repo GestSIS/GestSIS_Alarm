@@ -28,7 +28,13 @@ class Command(BaseCommand):
         if not os.path.isabs(options["pdf_file"]):
             options["pdf_file"] = os.path.join(settings.MEDIA_ROOT, options["pdf_file"])
 
-        extractor = PDFExtractor()
+        # The SIS will be retrieve from the database. This variable is just temporary and for test purpose
+        allowed_sis = [
+            "SIS Basse-Allaine", "SIS Val-Terbi", "SIS Vendline", "SIS Clos-du-Doubs", "SIS FM Centre", "SIS FM Ouest",
+            "SIS Haute-Sorne", "SIS Calabri", "SIS Baroche", "SIS 6/12", "SIS Haut-Plateau", "SIS Mont-Terri"
+        ]
+
+        extractor = PDFExtractor(allowed_sis)
 
         try:
             data = extractor.extract_data(options["pdf_file"])

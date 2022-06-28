@@ -2,6 +2,9 @@ from pdfminer.high_level import extract_pages
 from pdfminer.layout import LAParams, LTTextContainer, LTTextLine
 from enum import Enum
 import re
+from collections import deque
+from .utils.pdf_data import PDFData
+from .utils.pdf_message import PDFMessage
 
 
 class PDFExtractionException(Exception):
@@ -21,94 +24,43 @@ class ReadingMode(Enum):
     SEARCH_FIREFIGHTER = 3
 
 
-class PDFData:
-    """
-    Sort of a container to store the information extracted from the PDF
-    """
-    alarm_type = None
-    lv95_coordinate = None
-    event_address = None
-    firefighter_coming = {}
-    _current_group = None
-    _current_sis = None
-
-    def add_message_info(self, alarm_type, event_address, lv95_coordinate):
-        self.alarm_type = alarm_type
-        self.lv95_coordinate = lv95_coordinate
-        self.event_address = event_address
-
-    def add_firefighter_to_current_group(self, firefighter: str, phone: str):
-        if not self._current_sis or not self._current_group:
-            return False
-
-        f = {
-            "name": firefighter,
-            "phone": phone
-        }
-
-        self.firefighter_coming[self._current_sis][self._current_group].append(f)
-
-        return True
-
-    def add_sis(self, name: str):
-        self._current_sis = name
-
-        if name in self.firefighter_coming:
-            return False
-
-        self.firefighter_coming[name] = {}
-
-        return True
-
-    def add_group(self, name: str):
-        if not self._current_sis or name in self.firefighter_coming[self._current_sis]:
-            return False
-
-        self.firefighter_coming[self._current_sis][name] = []
-        self._current_group = name
-
-        return True
-
-    def get_current_group(self):
-        if not self._current_sis or not self._current_group:
-            return None
-
-        return self.firefighter_coming[self._current_sis][self._current_group]
-
-    def get_current_group_name(self):
-        return "{}, {}".format(self._current_sis, self._current_group)
-
-    def add_firefighters(self, sis, group, firefighters):
-        if sis not in self.firefighter_coming:
-            self.firefighter_coming[sis] = {}
-
-        if group not in self.firefighter_coming[sis]:
-            self.firefighter_coming[sis][group] = [e for e in firefighters]
-
-    def __str__(self):
-        return "Alarm Type: {}\nLV95: {}\nAddress: {}\nFirefighters: {}".format(self.alarm_type, self.lv95_coordinate, self.event_address,
-                                                                                self.firefighter_coming)
-
-
 class PDFExtractor:
 
-    def __init__(self):
-        self.re_patter_firefighter = re.compile(r"([\w\- ]+) (Téléphone) ((?: (?:(?:\+)?\d+)){1,2}) ([a-zA-Zé ]+)", flags=re.UNICODE)
-        self.re_pattern_stats = re.compile(r"Viennent: (\d+)")
+    def __init__(self, sis_whitelist: list):
+        """
+        :param
+            sis_whitelist: list
+              A list containing the name of the different SIS that will have their data retrieved
+        """
+        self._sis_whitelist = sis_whitelist
+
+        self.re_pattern_firefighter = re.compile(r"([\w\- ]+) (Téléphone) ((?: (?:(?:\+)?\d+)){1,2}) ([a-zA-Zé ]+)", flags=re.UNICODE)
+        self.re_pattern_incomplete_firefighter = re.compile(r"([\w\- ]+) (Téléphone) ((?: (?:(?:\+)?\d+)){2})", flags=re.UNICODE)
+        self.re_pattern_phone = re.compile(r"(?:(?:\+)?\d{5,})")
+
+        self.re_pattern_stats_come = re.compile(r"Viennent: (\d+)")
+        self.re_pattern_stats_dont_come = re.compile(r"Appelés: \d+ Ne viennent pas: (\d+)")
+
+        self.data_extracted = PDFData()
+        self.stats_current_firefighter = None
+        self.real_current_firefighter = None
 
     def extract_data(self, filename: str):
 
-        data_extracted = PDFData()
-
-        # Search for the information given at the first page (Alarm type, address, coordinates, etc.)
-        # This needs to need done in a separate extraction because the characters recognition parameters are not the same as the firefighters ones.
+        # Search for the information given at the first page (Alarm type, address, coordinates, etc.).
+        # This needs to need done in a separate extraction
+        # because the characters recognition parameters are not the same as the firefighters ones.
         message = self._extract_message(filename)
-        data_extracted.add_message_info(message[0], message[1], message[2])
+        self.data_extracted.add_message_info(message)
 
-        # The loop here is to found firefighter and there respective group and SIS
-        current_firefighter_stats = -1
+        # The loop here is to find firefighter and there respective group and SIS
+        self._reset_current_stats()
 
         reading_mode = None
+        last_text = None
+
+        # Queue that stores the three last lines that the script has read
+        last_lines = deque(maxlen=3)
 
         for page_layout in extract_pages(filename, laparams=LAParams(line_margin=0.5, boxes_flow=1, char_margin=25)):
 
@@ -118,6 +70,8 @@ class PDFExtractor:
                 if not isinstance(element, LTTextContainer):
                     continue
 
+                last_lines.append(element.get_text().strip())
+
                 if reading_mode is None:
                     # The list of firefighter only appears after "Statistiques par Service"
                     if element.get_text() == "Statistiques par Service\n":
@@ -126,65 +80,110 @@ class PDFExtractor:
 
                 # Search for text similar to a title
                 # It works because after "Statistiques par Service", the only titles are ones containing a group name
-                if reading_mode == ReadingMode.SEARCH_SIS:
+                elif reading_mode == ReadingMode.SEARCH_SIS:
 
                     for line in element:
                         if isinstance(line, LTTextLine):
 
-                            if self._is_it_sis_title(line):
-                                current_group, current_sis = self._extract_sis_title(title_text=line.get_text())
+                            if self._is_sis_title(line):
 
-                                # CRISP, CRISD and RTA are not in GestSIS, so we ignore them.
-                                if current_sis in ["CRISP", "CRISD", "RTA"]:
-                                    continue
+                                if self._evaluate_title(line):
+                                    reading_mode = ReadingMode.SEARCH_STATS
+                                    break
 
-                                data_extracted.add_sis(current_sis)
-                                data_extracted.add_group(current_group)
-
-                                reading_mode = ReadingMode.SEARCH_STATS
-                                break
+                                continue
 
                 # Extract the number of firefighter coming.
                 # It's used for verification when parsing the list of firefighter
-                if reading_mode == ReadingMode.SEARCH_STATS:
+                elif reading_mode == ReadingMode.SEARCH_STATS:
 
-                    match_stats = self.re_pattern_stats.match(element.get_text().strip())
-
-                    if match_stats:
-                        current_firefighter_stats = int(match_stats.group(1))
+                    if self._evaluate_stat_mode(element, last_text):
                         reading_mode = ReadingMode.SEARCH_FIREFIGHTER
                         continue
 
+                    last_text = element.get_text().strip()
+
                 # Extract the list of firefighter that comes to the intervention
-                if reading_mode == ReadingMode.SEARCH_FIREFIGHTER:
+                elif reading_mode == ReadingMode.SEARCH_FIREFIGHTER:
 
                     for line in element:
                         if isinstance(line, LTTextLine):
 
-                            match_firefighter = self.re_patter_firefighter.match(line.get_text().strip())
-                            if match_firefighter and match_firefighter.group(4) == "Vient":
-                                # The name is split and join back to back to remove multiple space between name
-                                data_extracted.add_firefighter_to_current_group(
-                                    " ".join(match_firefighter.group(1).split()),
-                                    match_firefighter.group(3).strip()
+                            match_firefighter = self.re_pattern_firefighter.match(line.get_text().strip())
+                            if match_firefighter:
+                                if (label := match_firefighter.group(4)) == "Vient":
+                                    # The name is split and join back to back to remove multiple space between name
+                                    self.data_extracted.add_firefighter_to_current_group(
+                                        " ".join(match_firefighter.group(1).split()),
+                                        match_firefighter.group(3).strip()
+                                    )
+
+                                if label in ["Pas atteint", "Ne vient pas"]:
+                                    self.current_firefighter_real[label] += 1
+
+                            # When a person has three phone numbers, the page layout breaks and the information
+                            # are all over the place. Luckily, the pattern is always the same and we need to search
+                            # for a phone number that is the only thing on the line
+                            elif match := self.re_pattern_phone.match(line.get_text().strip()):
+                                # Shouldn't happen, but we check that we have at least 3 lines in the queue
+                                if len(last_lines) != 3:
+                                    continue
+
+                                self._handle_three_phone_numbers(match.group(0).strip(), last_lines)
+
+                            elif self._is_sis_title(line):
+
+                                self._verify_firefighter_extraction(
+                                    self.data_extracted,
+                                    self.current_firefighter_real,
+                                    self.current_firefighter_stats
                                 )
 
-                            elif self._is_it_sis_title(line):
-                                self._verify_firefighter_extraction(data_extracted, current_firefighter_stats)
-
-                                current_group, current_sis = self._extract_sis_title(title_text=line.get_text())
-
-                                if current_sis in ["CRISP", "CRISD", "RTA"]:
+                                if self._evaluate_title(line):
+                                    reading_mode = ReadingMode.SEARCH_STATS
+                                    continue
+                                else:
                                     reading_mode = ReadingMode.SEARCH_SIS
                                     break
 
-                                data_extracted.add_sis(current_sis)
-                                data_extracted.add_group(current_group)
+        return self.data_extracted
 
-                                reading_mode = ReadingMode.SEARCH_STATS
-                                continue
+    def _handle_three_phone_numbers(self, first_phone_number: str, last_lines: deque):
+        """
+        Handle the parsing of a person with three phone numbers
+        :param
+            first_phone_number: str
+              The first phone number parsed by the script
+        :param
+            last_lines: deque
+              A queue containing the last three lines read by the parser
+        :return:
+        """
 
-        return data_extracted
+        # The last_lines queue is composed has follow :
+        # - 0 : Status : Pas atteint/Ne vient pas or Vient
+        # - 1 : An incomplete firefighter line composed of the name and two phone numbers
+        # - 2 : The third phone number
+
+        # Check if the line before the phone number is an incomplete firefighter line
+        if match_firefighter := self.re_pattern_incomplete_firefighter.match(last_lines[1]):
+            if last_lines[0] == "Vient":
+                self.data_extracted.add_firefighter_to_current_group(
+                    " ".join(match_firefighter.group(1).split()),
+                    " ".join(match_firefighter.group(3).split()) + " " + first_phone_number
+                )
+                return
+
+            if (label := last_lines[0]) in ["Pas atteint", "Ne vient pas"]:
+                self.current_firefighter_real[label] += 1
+                return
+
+    def _reset_current_stats(self):
+        """
+        Reset array used for statistics
+        """
+        self.current_firefighter_stats = {"Vient": -1, "Pas atteint": -1, "Ne vient pas": -1}
+        self.current_firefighter_real = {"Pas atteint": 0, "Ne vient pas": 0}
 
     def _extract_message(self, filename: str):
         """
@@ -202,31 +201,84 @@ class PDFExtractor:
             if isinstance(element, LTTextContainer) and element.get_text().startswith("Message\n"):
                 return self._extract_info_from_message(element.get_text().replace("Message\n", ""))
 
-        return None
+        raise PDFExtractionException("Message not found")
+
+    def _evaluate_title(self, line):
+        group, sis = self._extract_sis_title(title_text=line.get_text())
+
+        if sis not in self._sis_whitelist:
+            return False
+
+        self.data_extracted.add_sis(sis)
+        self.data_extracted.add_group(group)
+
+        self._reset_current_stats()
+
+        return True
+
+    def _evaluate_stat_mode(self, element, last_text: str):
+        """
+        Evaluate the element (line) passed by parameters and see if it's a valid statistic (Come, Don't come, Didn't answer)
+        :param
+            element:
+              The element to evaluate
+        :param
+            last_text: str
+              The previous line in the text
+        :param
+            current_firefighter_stats: dict
+              A dictionary containing the different values, must contains : "Vient", "Pas atteint" and "Ne vient pas"
+        :return: True if all the statistics has been found, False otherwise
+        """
+        text = element.get_text().strip()
+
+        if match_stats_come := self.re_pattern_stats_come.match(text):
+            self.current_firefighter_stats["Vient"] = int(match_stats_come.group(1))
+
+        elif match_stats_didnt_come := self.re_pattern_stats_dont_come.match(text):
+            self.current_firefighter_stats["Ne vient pas"] = int(match_stats_didnt_come.group(1))
+
+        elif text == "Pas répondus:":
+            self.current_firefighter_stats["Pas atteint"] = 0 if not last_text else int(last_text)
+
+        if -1 not in self.current_firefighter_stats.values():
+            return True
+
+        return False
 
     @staticmethod
-    def _verify_firefighter_extraction(pdf_data: PDFData, objective: int):
+    def _verify_firefighter_extraction(pdf_data: PDFData, other_data: dict, objective: dict):
         """
         Verify that the number of firefighters extracted in the list is the same as the one given in parameter
         :param
             pdf_data: PDFData
               The data extracted from the PDF
         :param
-            objective: int
+            other_data: dict
+               The other data
+        :param
+            objective: dict
               The number of firefighter the group should have
         :raise: PDFExtractionException if the number is not the same
         """
 
         nb_ff = pdf_data.get_current_group()
         if nb_ff is not None:
-            if len(nb_ff) == objective:
+            if len(nb_ff) == objective["Vient"] \
+                    and other_data["Ne vient pas"] == objective["Ne vient pas"] \
+                    and other_data["Pas atteint"] == objective["Pas atteint"]:
                 print("Stats: Successfully parsed {} ({})".format(pdf_data.get_current_group_name(), objective))
             else:
-                raise PDFExtractionException("Incorrect number of firefighter extracted for {}. (Objective: {}, Got: {})".format(
-                    pdf_data.get_current_group_name(),
-                    objective,
-                    len(nb_ff)
-                ))
+                raise PDFExtractionException(
+                    "Incorrect number of firefighter extracted for {}. (Come: {}/{}, Don't come: {}/{}, Didn't answer: {}/{})".format(
+                        pdf_data.get_current_group_name(),
+                        len(nb_ff),
+                        objective["Vient"],
+                        other_data["Ne vient pas"],
+                        objective["Ne vient pas"],
+                        other_data["Pas atteint"],
+                        objective["Pas atteint"]
+                    ))
 
     @staticmethod
     def _extract_info_from_message(message: str):
@@ -244,17 +296,17 @@ class PDFExtractor:
         cleaned = [element.strip() for element in cleaned]
 
         if len(cleaned) != 5:
-            raise PDFExtractionException("Invalid message, cannot retrieve informations, aborting...")
+            raise PDFExtractionException("Invalid message (Wrong number of semicolon)")
 
         # 0 is Alarm type
         # 1 is address (and complement)
         # 2 is intervention complement
         # 3 is LV95 coordinate
         # 4 is "CET JU"
-        return cleaned[0], cleaned[1], cleaned[3]
+        return PDFMessage(alarm_type=cleaned[0], event_address=cleaned[1], intervention_complement=cleaned[2], lv95_coordinate=cleaned[3])
 
     @staticmethod
-    def _is_it_sis_title(title_element):
+    def _is_sis_title(title_element):
         """
         Check if the current text is a title by verifying that the font size of the first character is 12
         :param
