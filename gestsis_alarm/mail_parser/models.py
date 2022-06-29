@@ -10,7 +10,8 @@ class Sis(models.Model):
 
 
 class Alarm(models.Model):
-    sis_id = models.ForeignKey(Sis, on_delete=models.CASCADE)
+    sis = models.ManyToManyField(Sis)
+    firefighter = models.ManyToManyField(Firefighter)
     address = models.CharField(max_length=255)
     location_wgs84 = models.CharField(max_length=255)
     location_lv95 = models.CharField(max_length=20)
