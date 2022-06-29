@@ -3,6 +3,8 @@ from ..utils.lv95_converter import convert_lv95_to_wgs84
 
 
 class TestLV95Converter(TestCase):
+    # The delta represent an accuracy of about 2.5 meter : https://gis.stackexchange.com/a/8674
+    # This has be chosen to be in accordance of the accuracy of the converter
     delta = 0.000025
 
     def test_invalid_string(self):
@@ -16,8 +18,7 @@ class TestLV95Converter(TestCase):
         # https://www.swisstopo.admin.ch/en/knowledge-facts/surveying-geodesy/reference-frames/local/lv95.html
 
         long, lat = convert_lv95_to_wgs84("2700000,1100000")
-        # The delta represent an accuracy of about 2.5 meter : https://gis.stackexchange.com/a/8674
-        # This has be chosen to be in accordance of the accuracy of the converter
+
         self.assertAlmostEqual(long, 8.730497, delta=self.delta)
         self.assertAlmostEqual(lat, 46.044131, delta=self.delta)
 
