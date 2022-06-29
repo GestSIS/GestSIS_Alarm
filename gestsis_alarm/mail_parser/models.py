@@ -45,7 +45,7 @@ class Alarm(models.Model):
 
 
 class File(models.Model):
-    alarm_id = models.ForeignKey(Alarm, on_delete=models.CASCADE)
+    alarm = models.ForeignKey(Alarm, on_delete=models.CASCADE)
     filename = models.CharField(max_length=255)
 
     def __str__(self):
