@@ -13,6 +13,7 @@ class Alarm(models.Model):
     sis = models.ManyToManyField(Sis)
     firefighter = models.ManyToManyField(Firefighter)
     address = models.CharField(max_length=255)
+    complement = models.CharField(max_length=255)
     location_wgs84 = models.CharField(max_length=255)
     location_lv95 = models.CharField(max_length=20)
     type = models.CharField(max_length=100)
