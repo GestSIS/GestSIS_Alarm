@@ -34,6 +34,7 @@ class Command(BaseCommand):
         self.stdout.write("Retrieved {} files from the mail server".format(len(pdf_downloaded)))
 
         for pdf_file in pdf_downloaded:
+            self.stdout.write(pdf_file)
             self._handle_pdf(pdf_file, extractor)
 
     def _handle_pdf(self, file: str, extractor: PDFExtractor):
@@ -53,7 +54,7 @@ class Command(BaseCommand):
         try:
             data = extractor.extract_data(os.path.join(settings.MEDIA_ROOT, "pdf", file))
         except PDFExtractionException as e:
-            self.stderr.write(self.style.ERROR("ERROR while parsing : {}".format(e.message)))
+            self.stderr.write(self.style.ERROR("ERROR while parsing: {}".format(e.message)))
             return
 
         wgs84_coord = convert_lv95_to_wgs84(data.message.lv95_coordinate)
