@@ -23,11 +23,15 @@ class Command(BaseCommand):
             self.stderr.write(self.style.ERROR("Missing environment variables, check your .env file !"))
             return
 
+        self.stdout.write("Scanning the mail server...")
+
         mc = MailRetriever(server, port, username, password, whitelisted_mails.split(","))
         pdf_downloaded = mc.check_for_new_messages()
 
         allowed_sis = Sis.objects.values_list("name", flat=True)
         extractor = PDFExtractor(allowed_sis)
+
+        self.stdout.write("Retrieved {} files from the mail server".format(len(pdf_downloaded)))
 
         for pdf_file in pdf_downloaded:
             filepath = os.path.join(settings.MEDIA_ROOT, "pdf", pdf_file)
