@@ -2,6 +2,7 @@ from ...tasks.mail_retriever import MailRetriever
 from ...tasks.pdf_extraction import PDFExtractor
 from ...models import Sis
 from ._pdf_handling import PDFCommand
+from django.conf import settings
 
 import os
 
@@ -32,4 +33,4 @@ class Command(PDFCommand):
 
         for pdf_file in pdf_downloaded:
             self.stdout.write(pdf_file)
-            self._handle_pdf(pdf_file, extractor)
+            self._handle_pdf(pdf_file, os.path.join(settings.MEDIA_ROOT, "pdf", pdf_file), extractor)
