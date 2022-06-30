@@ -37,6 +37,18 @@ class Command(BaseCommand):
             self._handle_pdf(pdf_file, extractor)
 
     def _handle_pdf(self, file: str, extractor: PDFExtractor):
+        """
+        Extract data from a pdf and save it into the database
+        :param
+            file: str
+              Filename of the mobilisation report
+        :param
+            extractor: PDFExtractor
+              Instance of extractor
+        """
+
+        if File.objects.filter(filename=file).exists():
+            return
 
         try:
             data = extractor.extract_data(os.path.join(settings.MEDIA_ROOT, "pdf", file))
