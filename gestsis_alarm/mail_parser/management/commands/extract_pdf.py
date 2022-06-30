@@ -1,14 +1,14 @@
 import sys
 
-from django.core.management import BaseCommand
 import os.path
 from django.conf import settings
 from ...tasks.pdf_extraction import PDFExtractor, PDFExtractionException
-from ...models import Alarm, File, Firefighter, Sis
+from ...models import Sis
 from ...utils.lv95_converter import convert_lv95_to_wgs84
+from ._pdf_handling import PDFCommand
 
 
-class Command(BaseCommand):
+class Command(PDFCommand):
     help = "Extract data from the mobilisation report"
 
     def add_arguments(self, parser):
@@ -36,47 +36,15 @@ class Command(BaseCommand):
         try:
             data = extractor.extract_data(options["pdf_file"])
         except PDFExtractionException as e:
-            print("ERROR while parsing : {}".format(e.message), file=sys.stderr)
+            self.stderr.write(self.style.ERROR("ERROR while parsing : {}".format(e.message), file=sys.stderr))
             return
 
         wgs84_coord = convert_lv95_to_wgs84(data.message.lv95_coordinate)
 
         if wgs84_coord is None:
-            print("ERROR while converting the coordinates ! (Given: {})".format(data.message.lv95_coordinate))
+            self.stderr.write(self.style.ERROR("ERROR while converting the coordinates ! (Given: {})".format(data.message.lv95_coordinate)))
             return
 
-        print(data)
+        self.stdout.write(self.style.SUCCESS("Successfully extracted the following data :"))
+        self.stdout.write(data)
 
-        print("Saving in Database...", end="")
-
-        a = Alarm(
-            location_lv95=data.message.lv95_coordinate,
-            location_wgs84="{},{}".format(str(wgs84_coord[0]), str(wgs84_coord[1])),
-            complement=data.message.intervention_complement,
-            address=data.message.event_address,
-            type=data.message.alarm_type,
-        )
-
-        a.save()
-
-        firefighters = []
-        firefighters_relations = []
-
-        firefighters_in_db = list(Firefighter.objects.all())
-
-        for sis, groups in data.firefighter_coming.items():
-            s = Sis.objects.get(name=sis)
-            a.sis.add(s)
-
-            for group, people in groups.items():
-                for person in people:
-                    f = Firefighter(fullname=person["name"], phone=person["phone"], group=group, sis=s)
-                    if f not in firefighters_in_db:
-                        firefighters.append(f)
-                        firefighters_relations.append(Alarm.firefighter.through(firefighter=f, alarm=a))
-
-        # bulk_create doesn't support many-to-many relationship, so we have to create the entry in the relationship table manually
-        Firefighter.objects.bulk_create(firefighters)
-        Alarm.firefighter.through.objects.bulk_create(firefighters_relations)
-
-        print("DONE")
