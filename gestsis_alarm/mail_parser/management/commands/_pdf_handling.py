@@ -13,28 +13,31 @@ class PDFCommand(BaseCommand):
     BaseCommand class implementing a function to save PDF
     """
 
-    def _handle_pdf(self, file: str, extractor: PDFExtractor):
+    def _handle_pdf(self, filename: str, filepath: str, extractor: PDFExtractor):
         """
         Extract data from a pdf and save it into the database
         :param
-            file: str
+            filename: str
               Filename of the mobilisation report
+        :param
+            filepath: str
+              Absolute path of the file (including filename)
         :param
             extractor: PDFExtractor
               Instance of extractor
         """
 
-        if File.objects.filter(filename=file).exists():
+        if File.objects.filter(filename=filename).exists():
+            self.stdout.write(self.style.WARNING("File already in database, skipping"))
             return
 
         try:
-            data = extractor.extract_data(os.path.join(settings.MEDIA_ROOT, "pdf", file))
+            data = extractor.extract_data(filepath)
         except PDFExtractionException as e:
             self.stderr.write(self.style.ERROR("ERROR while parsing: {}".format(e.message)))
             return
 
         wgs84_coord = convert_lv95_to_wgs84(data.message.lv95_coordinate)
-
         if wgs84_coord is None:
             self.stderr.write(self.style.ERROR("ERROR while converting the coordinates ! (Given: {})".format(data.message.lv95_coordinate)))
             return
@@ -51,6 +54,7 @@ class PDFCommand(BaseCommand):
 
         a.save()
 
+        # Add firefighters into the database
         firefighters = []
         firefighters_relations = []
 
@@ -72,7 +76,7 @@ class PDFCommand(BaseCommand):
         Alarm.firefighter.through.objects.bulk_create(firefighters_relations)
 
         # Save file in database to prevent from reading it again
-        file_obj = File(filename=file, alarm=a)
+        file_obj = File(filename=filename, alarm=a)
         file_obj.save()
 
         self.stdout.write(self.style.SUCCESS("DONE"))
