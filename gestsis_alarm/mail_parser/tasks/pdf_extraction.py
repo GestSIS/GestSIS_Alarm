@@ -207,13 +207,19 @@ class PDFExtractor:
         raise PDFExtractionException("Message not found")
 
     def _evaluate_title(self, line):
-        no, group, sis = self._extract_sis_title(title_text=line.get_text())
+        sis_title = self._extract_sis_title(title_text=line.get_text())
+
+        if sis_title is None:
+            print("Couldn't retrieve SIS group : {}".format(line.get_text()))
+            return False
+
+        no, group, sis = sis_title
 
         if sis not in self._sis_whitelist:
             return False
 
-        self.data_extracted.add_sis(no, sis)
-        self.data_extracted.add_group(group)
+        self.data_extracted.add_sis(sis)
+        self.data_extracted.add_group(no, group)
 
         self._reset_current_stats()
 
@@ -337,7 +343,7 @@ class PDFExtractor:
         """
 
         # Sometimes the separator between the group and the sis is a comma or a dash
-        title = ()
+
         a = title_text.split(",")
         if len(a) == 2:
             title = [e.strip() for e in a]
@@ -346,6 +352,7 @@ class PDFExtractor:
 
         match = self.re_pattern_sis_group.match(title[0])
         if not match:
-            raise PDFExtractionException("Couldn't extract the group from the SIS: {}".format(title_text))
+            return None
 
-        return int(match.group(1)), match.group(2), match.group(3)
+        print(match.groups())
+        return int(match.group(1)), match.group(2), title[1]
