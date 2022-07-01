@@ -212,11 +212,11 @@ class PDFExtractor:
         if sis not in self._sis_whitelist:
             return False
 
-        if not isinstance(group, tuple):
-            print("Couldn't retrieve SIS group : {}".format(line.get_text()))
-            return False
-
-        id_group, group_name, = group
+        # Extract the group id if present
+        if isinstance(group, tuple):
+            id_group, group_name = group
+        else:
+            id_group, group_name = None, group
 
         self.data_extracted.add_sis(sis)
         self.data_extracted.add_group(id_group, group_name)
