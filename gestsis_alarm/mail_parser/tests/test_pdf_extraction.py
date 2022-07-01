@@ -74,20 +74,29 @@ class TestPDFExtraction(TestCase):
 
         firefighter_to_receive = {
             "SIS Haute-Sorne": {
-                "*90 EM": [
-                    {"name": "Couche Emily", "phone": "+41219853643"}, {"name": "De Santa Jérome", "phone": "+41806469435"},
-                    {"name": "Membrez Lucas", "phone": "+41416011568"}, {"name": "Raposo Laëtitia", "phone": "+41431990211"},
-                ],
-                "*91 1er secours": [
-                    {"name": "Allimann Gauthier", "phone": "+41422703100"}, {"name": "Bocks André", "phone": "+41637919225"},
-                    {"name": "Cattin Réane", "phone": "+41919568736"}, {"name": "Girardin Joséphine", "phone": "+41463972764"},
-                    {"name": "Wermeille Lucie", "phone": "+41358932833"}
-                ]
+                "EM": {
+                    "no": 90,
+                    "firefighters": [
+                        {"name": "Couche Emily", "phone": "+41219853643"}, {"name": "De Santa Jérome", "phone": "+41806469435"},
+                        {"name": "Membrez Lucas", "phone": "+41416011568"}, {"name": "Raposo Laëtitia", "phone": "+41431990211"}
+                    ]
+                },
+                "1er secours": {
+                    "no": 91,
+                    "firefighters": [
+                        {"name": "Allimann Gauthier", "phone": "+41422703100"}, {"name": "Bocks André", "phone": "+41637919225"},
+                        {"name": "Cattin Réane", "phone": "+41919568736"}, {"name": "Girardin Joséphine", "phone": "+41463972764"},
+                        {"name": "Wermeille Lucie", "phone": "+41358932833"}
+                    ]
+                }
             },
             "SIS Calabri": {
-                "*90 EM": [
-                    {"name": "Tobler Daniel", "phone": "+41258491517 +41838004532 +41792966875"}
-                ]
+                "EM": {
+                    "no": 90,
+                    "firefighters": [
+                        {"name": "Tobler Daniel", "phone": "+41258491517 +41838004532 +41792966875"}
+                    ]
+                }
             }
         }
 
