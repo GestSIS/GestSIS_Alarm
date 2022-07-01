@@ -38,7 +38,7 @@ class PDFData:
 
         return True
 
-    def add_sis(self, name: str):
+    def add_sis(self, num: int, name: str):
         """
         Add SIS to the dictionary except if it's already in it.
         The variable current_sis is ALWAYS MODIFIED by each call, even if the SIS is already in the dictionary

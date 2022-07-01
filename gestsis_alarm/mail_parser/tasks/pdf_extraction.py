@@ -41,6 +41,8 @@ class PDFExtractor:
         self.re_pattern_stats_come = re.compile(r"Viennent: (\d+)")
         self.re_pattern_stats_dont_come = re.compile(r"Appelés: \d+ Ne viennent pas: (\d+)")
 
+        self.re_pattern_sis_group = re.compile(r"\*?(\d+) ([\w\- ]+)", flags=re.UNICODE)
+
         self.data_extracted = PDFData()
         self.stats_current_firefighter = None
         self.real_current_firefighter = None
@@ -205,12 +207,12 @@ class PDFExtractor:
         raise PDFExtractionException("Message not found")
 
     def _evaluate_title(self, line):
-        group, sis = self._extract_sis_title(title_text=line.get_text())
+        no, group, sis = self._extract_sis_title(title_text=line.get_text())
 
         if sis not in self._sis_whitelist:
             return False
 
-        self.data_extracted.add_sis(sis)
+        self.data_extracted.add_sis(no, sis)
         self.data_extracted.add_group(group)
 
         self._reset_current_stats()
@@ -325,8 +327,7 @@ class PDFExtractor:
 
         return round(first_char.size) == 12
 
-    @staticmethod
-    def _extract_sis_title(title_text: str):
+    def _extract_sis_title(self, title_text: str):
         """
         Extract the group and SIS names from the string. Works both for comma and dash
         :param
@@ -334,8 +335,17 @@ class PDFExtractor:
               The text (string) containing the group and the SIS
         :return: A tuple, with as first item the group and as the second, the SIS
         """
+
+        # Sometimes the separator between the group and the sis is a comma or a dash
+        title = ()
         a = title_text.split(",")
         if len(a) == 2:
-            return [e.strip() for e in a]
+            title = [e.strip() for e in a]
+        else:
+            title = [e.strip() for e in title_text.split(" - ")]
 
-        return [e.strip() for e in title_text.split(" - ")]
+        match = self.re_pattern_sis_group.match(title[0])
+        if not match:
+            raise PDFExtractionException("Couldn't extract the group from the SIS: {}".format(title_text))
+
+        return int(match.group(1)), match.group(2), match.group(3)
