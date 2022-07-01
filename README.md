@@ -60,7 +60,7 @@ python gestsis_alarm/manage.py runserver
 
 ## Usage
 
-The project has one command that you can execute without running the web server:
+The project has two commands that you can execute without running the web server:
 
 ### retrieve_mail
 
@@ -102,3 +102,40 @@ python manage.py retrieve_mail --username nobody@example.com
 # Get the whitelisted mail and the server url from the command line and the others from the environment
 python manage.py retrieve_mail --server mail.example.com --whitelisted-mails noreply@example.com report@example.com mobile@example.com
 ```
+
+### extract_pdf
+
+`extract_pdf` is the command that extract data from a mobilisation report (PDF file).
+
+```bash
+$ python manage.py extract_pdf -h
+usage: manage.py extract_pdf [-h]
+                             pdf_file
+
+Extract data from the mobilisation report
+
+positional arguments:
+  pdf_file              Path to the pdf file, can be absolute or relative. If relative, the root folder is 'storage'
+
+optional arguments:
+  -h, --help            show this help message and exit
+```
+
+#### Example
+
+```bash
+# Extract data from the pdf file named 'report.pdf' placed in the `gestsis_alarm/storage` folder (Relative path)
+python manage.py extract_pdf report.pdf
+
+# Extract data from the pdf file named 'mobilisation.pdf' placed in the folder `/home/public/reports' (Absolute path)
+python manage.py extract_pdf /home/public/reports/mobilisation.pdf 
+```
+
+## Unit tests
+
+This project comes with some unit tests to validate the code.
+If you want to run them, go to the `gestsis_alarm` folder (it contains the `manage.py` file) and run the following command :
+```bash
+python manage.py test
+```
+Theses tests are located in the `tests` folder of `mail_parser`
