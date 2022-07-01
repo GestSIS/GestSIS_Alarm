@@ -191,7 +191,8 @@ class PDFExtractor:
         :param
             filename: str
               Filename of the PDF
-        :return: A tuple containing the information otherwise None if nothing is found
+        :raise PDFExtractionException If nothing is found
+        :return: A tuple containing the information
         """
         page_layout = next(extract_pages(filename, maxpages=1, laparams=LAParams(line_margin=2, boxes_flow=0.8)))
 
