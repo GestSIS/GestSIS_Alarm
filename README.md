@@ -141,6 +141,6 @@ python manage.py extract_pdf /home/public/reports/mobilisation.pdf
 This project comes with some unit tests to validate the code.
 If you want to run them, go to the `gestsis_alarm` folder (it contains the `manage.py` file) and run the following command :
 ```bash
-python manage.py tests
+python manage.py test
 ```
 Theses tests are located in the `tests` folder of `mail_parser`
