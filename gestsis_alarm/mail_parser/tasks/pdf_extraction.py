@@ -207,19 +207,19 @@ class PDFExtractor:
         raise PDFExtractionException("Message not found")
 
     def _evaluate_title(self, line):
-        sis_title = self._extract_sis_title(title_text=line.get_text())
-
-        if sis_title is None:
-            print("Couldn't retrieve SIS group : {}".format(line.get_text()))
-            return False
-
-        no, group, sis = sis_title
+        group, sis = self._extract_sis_title(title_text=line.get_text())
 
         if sis not in self._sis_whitelist:
             return False
 
+        if not isinstance(group, tuple):
+            print("Couldn't retrieve SIS group : {}".format(line.get_text()))
+            return False
+
+        id_group, group_name, = group
+
         self.data_extracted.add_sis(sis)
-        self.data_extracted.add_group(no, group)
+        self.data_extracted.add_group(id_group, group_name)
 
         self._reset_current_stats()
 
@@ -339,7 +339,8 @@ class PDFExtractor:
         :param
             title_text: str
               The text (string) containing the group and the SIS
-        :return: A tuple, with as first item the group and as the second, the SIS
+        :return: A tuple, with as first a tuple containing the group number and the group name and at second, the SIS.
+            If the group name and id couldn't be separated, the first item is a string with the group number and name.
         """
 
         # Sometimes the separator between the group and the sis is a comma or a dash
@@ -352,7 +353,6 @@ class PDFExtractor:
 
         match = self.re_pattern_sis_group.match(title[0])
         if not match:
-            return None
+            return title
 
-        print(match.groups())
-        return int(match.group(1)), match.group(2), title[1]
+        return (int(match.group(1)), match.group(2)), title[1]
