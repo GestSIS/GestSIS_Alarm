@@ -64,9 +64,11 @@ class PDFCommand(BaseCommand):
             s = Sis.objects.get(name=sis)
             a.sis.add(s)
 
-            for group, people in groups.items():
-                for person in people:
-                    f = Firefighter(fullname=person["name"], phone=person["phone"], group=group, sis=s)
+            for group_name, group_data in groups.items():
+                for person in group_data["firefighters"]:
+                    f = Firefighter(fullname=person["name"], phone=person["phone"], sis=s,
+                                    group_name=group_name, group_number=group_data["no"]
+                                    )
                     if f not in firefighters_in_db:
                         firefighters.append(f)
                         firefighters_relations.append(Alarm.firefighter.through(firefighter=f, alarm=a))
