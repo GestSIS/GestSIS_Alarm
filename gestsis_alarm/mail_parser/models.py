@@ -11,13 +11,14 @@ class Sis(models.Model):
 
 class Firefighter(models.Model):
     sis = models.ForeignKey(Sis, on_delete=models.CASCADE)
-    group = models.CharField(max_length=255)
+    group_name = models.CharField(max_length=255)
+    group_number = models.CharField(max_length=20, null=True)
     fullname = models.CharField(max_length=255)
     phone = models.CharField(max_length=50)
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['fullname', 'sis', 'group', 'phone'], name='unique_firefighter')
+            models.UniqueConstraint(fields=['fullname', 'sis', 'group_name', 'group_number', 'phone'], name='unique_firefighter')
         ]
 
     def __str__(self):
@@ -27,7 +28,8 @@ class Firefighter(models.Model):
         if not isinstance(other, Firefighter):
             return NotImplemented
 
-        return self.sis == other.sis and self.group == other.group and self.fullname == other.fullname and self.phone == other.phone
+        return self.sis == other.sis and self.group_name == other.group_name and \
+               self.fullname == other.fullname and self.phone == other.phone and self.group_number == self.group_name
 
 
 class Alarm(models.Model):
@@ -50,4 +52,3 @@ class File(models.Model):
 
     def __str__(self):
         return self.filename
-
