@@ -1,1 +1,15 @@
-[{"model": "mail_parser.sis", "pk": 1, "fields": {"name": "SIS Basse-Allaine", "gestsis_name": "SIS Basse-Allaine"}}, {"model": "mail_parser.sis", "pk": 2, "fields": {"name": "SIS Val-Terbi", "gestsis_name": "SIS Val-Terbi"}}, {"model": "mail_parser.sis", "pk": 3, "fields": {"name": "SIS Vendline", "gestsis_name": "SIS Vendline"}}, {"model": "mail_parser.sis", "pk": 4, "fields": {"name": "SIS Clos-du-Doubs", "gestsis_name": "SIS Clos-du-Doubs"}}, {"model": "mail_parser.sis", "pk": 5, "fields": {"name": "SIS FM Centre", "gestsis_name": "SIS FM Centre"}}, {"model": "mail_parser.sis", "pk": 6, "fields": {"name": "SIS FM Ouest", "gestsis_name": "SIS FM Ouest"}}, {"model": "mail_parser.sis", "pk": 7, "fields": {"name": "SIS Haute-Sorne", "gestsis_name": "SIS Haute-Sorne"}}, {"model": "mail_parser.sis", "pk": 8, "fields": {"name": "SIS Calabri", "gestsis_name": "SIS Calabri"}}, {"model": "mail_parser.sis", "pk": 9, "fields": {"name": "SIS Baroche", "gestsis_name": "SIS Baroche"}}, {"model": "mail_parser.sis", "pk": 10, "fields": {"name": "SIS 6/12", "gestsis_name": "SIS 6/12"}}, {"model": "mail_parser.sis", "pk": 11, "fields": {"name": "SIS Haut-Plateau", "gestsis_name": "SIS Haut-Plateau"}}, {"model": "mail_parser.sis", "pk": 12, "fields": {"name": "SIS Mont-Terri", "gestsis_name": "SIS Mont-Terri"}}]
+[
+  {"model": "mail_parser.sis", "pk": 1, "fields": {"name": "SIS Basse-Allaine", "gestsis_name": "SIS Basse-Allaine"}},
+  {"model": "mail_parser.sis", "pk": 2, "fields": {"name": "SIS Val-Terbi", "gestsis_name": "SIS Val-Terbi"}},
+  {"model": "mail_parser.sis", "pk": 3, "fields": {"name": "SIS Vendline", "gestsis_name": "SIS Vendline"}},
+  {"model": "mail_parser.sis", "pk": 4, "fields": {"name": "SIS Clos-du-Doubs", "gestsis_name": "SIS Clos-du-Doubs"}},
+  {"model": "mail_parser.sis", "pk": 5, "fields": {"name": "SIS FM Centre", "gestsis_name": "SIS FM Centre"}},
+  {"model": "mail_parser.sis", "pk": 6, "fields": {"name": "SIS FM Ouest", "gestsis_name": "SIS FM Ouest"}},
+  {"model": "mail_parser.sis", "pk": 7, "fields": {"name": "SIS Haute-Sorne", "gestsis_name": "SIS Haute-Sorne"}},
+  {"model": "mail_parser.sis", "pk": 8, "fields": {"name": "SIS Calabri", "gestsis_name": "SIS Calabri"}},
+  {"model": "mail_parser.sis", "pk": 9, "fields": {"name": "SIS Baroche", "gestsis_name": "SIS Baroche"}},
+  {"model": "mail_parser.sis", "pk": 10, "fields": {"name": "SIS 6/12", "gestsis_name": "SIS 6/12"}},
+  {"model": "mail_parser.sis", "pk": 11, "fields": {"name": "SIS Haut-Plateau", "gestsis_name": "SIS Haut-Plateau"}},
+  {"model": "mail_parser.sis", "pk": 12, "fields": {"name": "SIS Mont-Terri", "gestsis_name": "SIS Mont-Terri"}},
+  {"model": "mail_parser.sis", "pk": 13, "fields": {"name": "SIS FM Est", "gestsis_name": "SIS FM Est"}}
+]
