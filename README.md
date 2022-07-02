@@ -53,7 +53,12 @@ The script has done some jobs for you, but you need to do the last step :
 
 Theses are important because without them, the application won't function properly.
 
-6. Add initial data into the database
+6. Migrate the database
+```
+python gestsis_alarm/manage.py migrate
+```
+
+7. Add initial data in the database
 ```
 python gestsis_alarm/manage.py loaddata sis
 ```
