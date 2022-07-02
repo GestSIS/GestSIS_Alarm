@@ -136,6 +136,19 @@ python manage.py extract_pdf report.pdf
 python manage.py extract_pdf /home/public/reports/mobilisation.pdf 
 ```
 
+### mail_and_extract
+
+This command combine the actions of `retrieve_mail` and `extract_pdf` into one command. 
+It is intended to be used in a cronjob.
+**Contrary to `extract_pdf` the filename of the PDF will be added in the database.**
+It uses the environment variables for the mail settings, and it can't be overwritten by command line parameters.
+
+#### Example
+
+```bash
+python manage.py mail_and_extract
+```
+
 ## Unit tests
 
 This project comes with some unit tests to validate the code.
