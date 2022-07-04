@@ -27,13 +27,14 @@ class Command(BaseCommand):
                             help="If given, the connection to the mail server will use STARTTLS instead of IMAPs")
 
     def handle(self, *args, **options):
-
         for option in self._required_options:
             if not options[option]:
                 raise ValueError("'{}' cannot be empty or None ! Specify it with the command line or in the .env file !".format(option))
 
         if type(options["whitelisted_mails"]) == str:
             options["whitelisted_mails"] = options["whitelisted_mails"].split(",")
+
+        logger.debug("Checking mail on server")
 
         mc = MailRetriever(options["server"],
                            options["port"],

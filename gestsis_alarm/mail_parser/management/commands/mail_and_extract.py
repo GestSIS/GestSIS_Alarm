@@ -14,6 +14,8 @@ class Command(PDFCommand):
     help = "Retrieve mail from the mail server, extract data from the PDF and add it to the DB. Expected to be used in a cron job"
 
     def handle(self, *args, **options):
+        logger.debug("Running mail_and_extract command")
+
         server = os.environ.get("GESTSIS_ALARM_MAIL_SERVER")
         port = os.environ.get("GESTSIS_ALARM_MAIL_PORT")
         username = os.environ.get("GESTSIS_ALARM_MAIL_USERNAME")
