@@ -4,6 +4,9 @@ from ...tasks.pdf_extraction import PDFExtractor, PDFExtractionException
 from ...models import Sis
 from ._pdf_handling import PDFCommand
 
+import logging
+logger = logging.getLogger("main")
+
 
 class Command(PDFCommand):
     help = "Extract data from the mobilisation report"
@@ -23,6 +26,7 @@ class Command(PDFCommand):
                             help="Path to the pdf file, can be absolute or relative. If relative, the root folder is 'storage'")
 
     def handle(self, *args, **options):
+        logger.debug("Extract pdf information for {}".format(options["pdf_file"]))
 
         if not os.path.isabs(options["pdf_file"]):
             options["pdf_file"] = os.path.join(settings.MEDIA_ROOT, options["pdf_file"])

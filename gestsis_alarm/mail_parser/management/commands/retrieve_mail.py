@@ -1,7 +1,10 @@
 from django.core.management import BaseCommand
 from ...tasks.mail_retriever import MailRetriever
-
 import os
+
+
+import logging
+logger = logging.getLogger("main")
 
 
 class Command(BaseCommand):
@@ -41,3 +44,4 @@ class Command(BaseCommand):
         pdf_downloaded = mc.check_for_new_messages()
         print("{} file(s) retrieved".format(len(pdf_downloaded)))
         [print("- {}".format(f)) for f in pdf_downloaded]
+        logger.info("Check on mail server {} downloaded {} new files".format(options["server"], len(pdf_downloaded)))

@@ -3,9 +3,9 @@ from django.core.management import BaseCommand
 from ...tasks.pdf_extraction import PDFExtractor, PDFExtractionException
 from ...models import Alarm, File, Firefighter, Sis
 from ...utils.lv95_converter import convert_lv95_to_wgs84
-from django.conf import settings
 
-import os
+import logging
+logger = logging.getLogger("main")
 
 
 class PDFCommand(BaseCommand):
@@ -28,12 +28,14 @@ class PDFCommand(BaseCommand):
         """
 
         if File.objects.filter(filename=filename).exists():
+            logger.warning("File {} already exist in the database".format(filename))
             self.stdout.write(self.style.WARNING("File already in database, skipping"))
             return
 
         try:
             data = extractor.extract_data(filepath)
         except PDFExtractionException as e:
+            logger.error("The parsing of {} raised an exception : {}".format(filename, e.message))
             self.stderr.write(self.style.ERROR("ERROR while parsing: {}".format(e.message)))
             return
 
@@ -42,6 +44,7 @@ class PDFCommand(BaseCommand):
             self.stderr.write(self.style.ERROR("ERROR while converting the coordinates ! (Given: {})".format(data.message.lv95_coordinate)))
             return
 
+        logger.debug("Saving {} in the database".format(filename))
         self.stdout.write("Saving in Database...", ending="")
 
         a = Alarm(
@@ -81,4 +84,5 @@ class PDFCommand(BaseCommand):
         file_obj = File(filename=filename, alarm=a)
         file_obj.save()
 
+        logger.info("Successfully added {} in the database".format(filename))
         self.stdout.write(self.style.SUCCESS("DONE"))
