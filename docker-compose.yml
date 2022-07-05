@@ -3,10 +3,7 @@ version: '3'
 services:
   gestsis_alarm:
     build: .
-    command:
-      - bash -c "python manage.py migrate"
-      - bash -c "python manage.py loaddata sis"
-      - bash -c "python manage.py runserver 0.0.0.0:8000"
+    command: python manage.py runserver 0.0.0.0:8000
     container_name: gestsis_alarm
     volumes:
       - .:/gestsis_alarm
