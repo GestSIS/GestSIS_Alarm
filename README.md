@@ -12,7 +12,22 @@ Django app managing the alarm for GestSIS
 
 ### Using Docker
 
-[TODO]
+To use this project with Docker, you need to do the following steps:
+
+1. `git clone` the project
+2. In the `docker-compose.yml` file, fill the empty environment variables
+3. Run Docker compose
+```bash
+docker-compose up -d
+```
+4. If you go to `http://127.0.0.1:8000`, you should see the django webpage
+
+#### Access django terminal
+
+If you want to access the terminal inside the docker container to run `manage.py` commands, you need to run the following command :
+```bash
+docker exec -it gestsis_alarm bash
+```
 
 ### Manually
 
