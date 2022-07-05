@@ -1,5 +1,7 @@
 #!/bin/sh
 
+python init.py
+
 cd gestsis_alarm
 
 python manage.py migrate
