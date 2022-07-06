@@ -28,8 +28,8 @@ class Firefighter(models.Model):
         if not isinstance(other, Firefighter):
             return NotImplemented
 
-        return self.sis == other.sis and self.group_name == other.group_name and \
-               self.fullname == other.fullname and self.phone == other.phone and self.group_number == self.group_name
+        return self.sis_id == other.sis_id and self.group_name == other.group_name and \
+               self.fullname == other.fullname and self.phone == other.phone and self.group_number == self.group_number
 
 
 class Alarm(models.Model):
