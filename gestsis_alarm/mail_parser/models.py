@@ -37,8 +37,8 @@ class Alarm(models.Model):
     firefighter = models.ManyToManyField(Firefighter)
     address = models.CharField(max_length=255)
     complement = models.CharField(max_length=255)
-    location_wgs84 = models.CharField(max_length=255)
-    location_lv95 = models.CharField(max_length=20)
+    location_wgs84 = models.CharField(max_length=255, null=True)
+    location_lv95 = models.CharField(max_length=20, null=True)
     type = models.CharField(max_length=100)
     has_been_read = models.BooleanField(default=False)
 
