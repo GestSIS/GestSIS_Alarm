@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'mail_parser'
+    'mail_parser',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
