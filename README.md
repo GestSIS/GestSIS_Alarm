@@ -1,4 +1,4 @@
-# GestSIS_Alarm (Tentative name)
+# GestSIS_Alarm
 
 Django app managing the alarm for GestSIS
 
