@@ -53,7 +53,17 @@ The script has done some jobs for you, but you need to do the last step :
 
 Theses are important because without them, the application won't function properly.
 
-6. Finally, you can run the app !
+6. Migrate the database
+```
+python gestsis_alarm/manage.py migrate
+```
+
+7. Add initial data in the database
+```
+python gestsis_alarm/manage.py loaddata sis
+```
+
+7. Finally, you can run the app !
 ```bash
 python gestsis_alarm/manage.py runserver
 ```
@@ -129,6 +139,19 @@ python manage.py extract_pdf report.pdf
 
 # Extract data from the pdf file named 'mobilisation.pdf' placed in the folder `/home/public/reports' (Absolute path)
 python manage.py extract_pdf /home/public/reports/mobilisation.pdf 
+```
+
+### mail_and_extract
+
+This command combine the actions of `retrieve_mail` and `extract_pdf` into one command. 
+It is intended to be used in a cronjob.
+**Contrary to `extract_pdf` the filename of the PDF will be added in the database.**
+It uses the environment variables for the mail settings, and it can't be overwritten by command line parameters.
+
+#### Example
+
+```bash
+python manage.py mail_and_extract
 ```
 
 ## Unit tests

@@ -1,12 +1,14 @@
-import sys
-
-from django.core.management import BaseCommand
 import os.path
 from django.conf import settings
 from ...tasks.pdf_extraction import PDFExtractor, PDFExtractionException
+from ...models import Sis
+from ._pdf_handling import PDFCommand
+
+import logging
+logger = logging.getLogger("main")
 
 
-class Command(BaseCommand):
+class Command(PDFCommand):
     help = "Extract data from the mobilisation report"
 
     def add_arguments(self, parser):
@@ -24,22 +26,12 @@ class Command(BaseCommand):
                             help="Path to the pdf file, can be absolute or relative. If relative, the root folder is 'storage'")
 
     def handle(self, *args, **options):
+        logger.debug("Extract pdf information for {}".format(options["pdf_file"]))
 
         if not os.path.isabs(options["pdf_file"]):
             options["pdf_file"] = os.path.join(settings.MEDIA_ROOT, options["pdf_file"])
 
-        # The SIS will be retrieve from the database. This variable is just temporary and for test purpose
-        allowed_sis = [
-            "SIS Basse-Allaine", "SIS Val-Terbi", "SIS Vendline", "SIS Clos-du-Doubs", "SIS FM Centre", "SIS FM Ouest",
-            "SIS Haute-Sorne", "SIS Calabri", "SIS Baroche", "SIS 6/12", "SIS Haut-Plateau", "SIS Mont-Terri"
-        ]
-
+        allowed_sis = Sis.objects.values_list("name", flat=True)
         extractor = PDFExtractor(allowed_sis)
 
-        try:
-            data = extractor.extract_data(options["pdf_file"])
-        except PDFExtractionException as e:
-            print("ERROR while parsing : {}".format(e.message), file=sys.stderr)
-            return
-
-        print(data)
+        self._handle_pdf(os.path.basename(options["pdf_file"]), options["pdf_file"], extractor)
