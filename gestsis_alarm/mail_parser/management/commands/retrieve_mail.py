@@ -1,7 +1,10 @@
 from django.core.management import BaseCommand
 from ...tasks.mail_retriever import MailRetriever
-
 import os
+
+
+import logging
+logger = logging.getLogger("main")
 
 
 class Command(BaseCommand):
@@ -24,13 +27,14 @@ class Command(BaseCommand):
                             help="If given, the connection to the mail server will use STARTTLS instead of IMAPs")
 
     def handle(self, *args, **options):
-
         for option in self._required_options:
             if not options[option]:
                 raise ValueError("'{}' cannot be empty or None ! Specify it with the command line or in the .env file !".format(option))
 
         if type(options["whitelisted_mails"]) == str:
             options["whitelisted_mails"] = options["whitelisted_mails"].split(",")
+
+        logger.debug("Checking mail on server")
 
         mc = MailRetriever(options["server"],
                            options["port"],
@@ -41,3 +45,4 @@ class Command(BaseCommand):
         pdf_downloaded = mc.check_for_new_messages()
         print("{} file(s) retrieved".format(len(pdf_downloaded)))
         [print("- {}".format(f)) for f in pdf_downloaded]
+        logger.info("Check on mail server {} downloaded {} new files".format(options["server"], len(pdf_downloaded)))

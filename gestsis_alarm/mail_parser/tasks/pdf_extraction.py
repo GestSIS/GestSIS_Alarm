@@ -41,6 +41,8 @@ class PDFExtractor:
         self.re_pattern_stats_come = re.compile(r"Viennent: (\d+)")
         self.re_pattern_stats_dont_come = re.compile(r"Appelés: \d+ Ne viennent pas: (\d+)")
 
+        self.re_pattern_sis_group = re.compile(r"\*?(\d+) ([\w\- ]+)", flags=re.UNICODE)
+
         self.data_extracted = PDFData()
         self.stats_current_firefighter = None
         self.real_current_firefighter = None
@@ -191,7 +193,8 @@ class PDFExtractor:
         :param
             filename: str
               Filename of the PDF
-        :return: A tuple containing the information otherwise None if nothing is found
+        :raise PDFExtractionException If nothing is found
+        :return: A tuple containing the information
         """
         page_layout = next(extract_pages(filename, maxpages=1, laparams=LAParams(line_margin=2, boxes_flow=0.8)))
 
@@ -209,8 +212,14 @@ class PDFExtractor:
         if sis not in self._sis_whitelist:
             return False
 
+        # Extract the group id if present
+        if isinstance(group, tuple):
+            id_group, group_name = group
+        else:
+            id_group, group_name = None, group
+
         self.data_extracted.add_sis(sis)
-        self.data_extracted.add_group(group)
+        self.data_extracted.add_group(id_group, group_name)
 
         self._reset_current_stats()
 
@@ -324,17 +333,26 @@ class PDFExtractor:
 
         return round(first_char.size) == 12
 
-    @staticmethod
-    def _extract_sis_title(title_text: str):
+    def _extract_sis_title(self, title_text: str):
         """
         Extract the group and SIS names from the string. Works both for comma and dash
         :param
             title_text: str
               The text (string) containing the group and the SIS
-        :return: A tuple, with as first item the group and as the second, the SIS
+        :return: A tuple, with as first a tuple containing the group number and the group name and at second, the SIS.
+            If the group name and id couldn't be separated, the first item is a string with the group number and name.
         """
+
+        # Sometimes the separator between the group and the sis is a comma or a dash
+
         a = title_text.split(",")
         if len(a) == 2:
-            return [e.strip() for e in a]
+            title = [e.strip() for e in a]
+        else:
+            title = [e.strip() for e in title_text.split(" - ")]
 
-        return [e.strip() for e in title_text.split(" - ")]
+        match = self.re_pattern_sis_group.match(title[0])
+        if not match:
+            return title
+
+        return (int(match.group(1)), match.group(2)), title[1]

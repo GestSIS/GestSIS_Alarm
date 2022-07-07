@@ -31,10 +31,10 @@ class PDFData:
             "phone": phone
         }
 
-        if f in self.firefighter_coming[self._current_sis][self._current_group]:
+        if f in self.firefighter_coming[self._current_sis][self._current_group]["firefighters"]:
             return False
 
-        self.firefighter_coming[self._current_sis][self._current_group].append(f)
+        self.firefighter_coming[self._current_sis][self._current_group]["firefighters"].append(f)
 
         return True
 
@@ -56,20 +56,23 @@ class PDFData:
 
         return True
 
-    def add_group(self, name: str):
+    def add_group(self, num: int, name: str):
         """
         Add a group to the dictionary except if it's already in it.
         The variable current_group is modified ONLY if the group is not in the current SIS.
         :param
             name: str
               Name of the group
+        :param
+            num: int
+              Sort of ID of the group
         :return: True if the group has been added, otherwise False
         """
 
         if not self._current_sis or name in self.firefighter_coming[self._current_sis]:
             return False
 
-        self.firefighter_coming[self._current_sis][name] = []
+        self.firefighter_coming[self._current_sis][name] = {"no": num, "firefighters": []}
         self._current_group = name
 
         return True
@@ -78,7 +81,7 @@ class PDFData:
         if not self._current_sis or not self._current_group:
             return None
 
-        return self.firefighter_coming[self._current_sis][self._current_group]
+        return self.firefighter_coming[self._current_sis][self._current_group]["firefighters"]
 
     def get_current_group_name(self):
         return "{}, {}".format(self._current_sis, self._current_group)
