@@ -11,4 +11,4 @@ class SisSerializer(serializers.HyperlinkedModelSerializer):
 class AlarmSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Alarm
-        fields = ['fullname', 'sis', 'group_name', 'group_number', 'phone']
+        fields = ['id', 'address', 'complement', 'location_wgs84', 'location_lv95', 'type']
