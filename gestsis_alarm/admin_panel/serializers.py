@@ -8,7 +8,9 @@ class SisSerializer(serializers.HyperlinkedModelSerializer):
         fields = ["id", "name", "gestsis_key"]
 
 
-class AlarmSerializer(serializers.HyperlinkedModelSerializer):
+class AlarmSerializer(serializers.ModelSerializer):
+    sis = serializers.SlugRelatedField(slug_field="gestsis_key", read_only=True, many=True)
+
     class Meta:
         model = Alarm
-        fields = ['id', 'address', 'complement', 'location_wgs84', 'location_lv95', 'type']
+        fields = ['id', 'address', 'complement', 'location_wgs84', 'location_lv95', 'type', 'sis']
