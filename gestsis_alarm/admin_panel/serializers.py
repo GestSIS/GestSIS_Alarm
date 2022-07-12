@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from mail_parser.models import Firefighter, Sis, Alarm
 
+# Serializers used by Django Rest Framework to render model into JSON objects
+
 
 class SisSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -18,6 +20,7 @@ class FirefighterSerializer(serializers.ModelSerializer):
 
 class AlarmSerializer(serializers.ModelSerializer):
     sis = serializers.SlugRelatedField(slug_field="gestsis_key", read_only=True, many=True)
+    firefighter = FirefighterSerializer(read_only=True, many=True)
 
     class Meta:
         model = Alarm
