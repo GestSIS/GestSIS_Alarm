@@ -3,14 +3,20 @@ version: '3'
 services:
   gestsis_alarm:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: >
+      sh -c "pip install -r requirements.txt &&
+      python init.py &&
+      cd gestsis_alarm &&
+      python manage.py migrate &&
+      python manage.py loaddata sis &&
+      python manage.py runserver 0.0.0.0:8000"
     container_name: gestsis_alarm
     volumes:
-      - .:/gestsis_alarm
+      - .:/usr/src/app
     ports:
       - "8000:8000"
     environment:
-      GESTSIS_DEBUG_MODE: true
+      GESTSIS_DEBUG_MODE: 1
       GESTSIS_ALARM_ALLOWED_HOSTS: localhost,127.0.0.1
       GESTSIS_ALARM_MAIL_SERVER: ""
       GESTSIS_ALARM_MAIL_PORT: ""
