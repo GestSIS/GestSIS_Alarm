@@ -13,4 +13,4 @@ class AlarmSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Alarm
-        fields = ['id', 'address', 'complement', 'location_wgs84', 'location_lv95', 'type', 'sis']
+        fields = ['id', 'address', 'complement', 'location_wgs84', 'location_lv95', 'type', 'sis', 'firefighter']
