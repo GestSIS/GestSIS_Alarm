@@ -28,6 +28,10 @@ If you want to access the terminal inside the docker container to run `manage.py
 ```bash
 docker exec -it gestsis_alarm bash
 ```
+Or with docker-compose :
+```bash
+docker-compose exec gestsis_alarm bash
+```
 
 ### Manually
 
@@ -61,6 +65,7 @@ python init.py
 It will do two things :
   - Copy the`.env.example` file to `.env`
   - Populate the `.env` file with a secret key that will be used by Django
+    - By default, if a key is already set, it won't be overridden, add the argument `-f` to the script to force the generation of a new key
 
 The script has done some jobs for you, but you need to do the last step :
 
