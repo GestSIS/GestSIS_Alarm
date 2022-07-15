@@ -4,7 +4,7 @@ Django app managing the alarm for GestSIS
 
 ## Structure
 
-- The project name is `gestsis_alarm`, in it, there is two projects :
+- The project name is `gestsis_alarm`, in it, there is two applications :
   - `admin_panel` containing all the code for the admin view
   - `mail_parser` containing all the code for retrieving mails and parsing the PDF in it
 
@@ -15,8 +15,9 @@ Django app managing the alarm for GestSIS
 To use this project with Docker, you need to do the following steps:
 
 1. `git clone` the project
-2. In the `docker-compose.yml` file, fill the empty environment variables
-3. Run Docker compose
+2. Copy the`.env.example` file to `.env`
+3. Specify the missing values in it (except for `GESTSIS_ALARM_SECRET_KEY`)
+4. Run Docker compose
 ```bash
 docker-compose up -d
 ```
