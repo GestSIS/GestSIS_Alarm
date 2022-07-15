@@ -26,11 +26,11 @@ docker-compose up -d
 
 If you want to access the terminal inside the docker container to run `manage.py` commands, you need to run the following command :
 ```bash
-docker exec -it gestsis_alarm bash
+docker exec -it alarm bash
 ```
 Or with docker-compose :
 ```bash
-docker-compose exec gestsis_alarm bash
+docker-compose exec alarm bash
 ```
 
 ### Manually

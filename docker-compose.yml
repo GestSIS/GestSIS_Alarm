@@ -10,7 +10,7 @@ services:
       python manage.py migrate &&
       python manage.py loaddata sis &&
       python manage.py runserver 0.0.0.0:8000"
-    container_name: gestsis_alarm
+    container_name: alarm
     volumes:
       - .:/usr/src/app
     ports:
