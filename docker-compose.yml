@@ -15,11 +15,3 @@ services:
       - .:/usr/src/app
     ports:
       - "8000:8000"
-    environment:
-      GESTSIS_DEBUG_MODE: 1
-      GESTSIS_ALARM_ALLOWED_HOSTS: localhost,127.0.0.1
-      GESTSIS_ALARM_MAIL_SERVER: ""
-      GESTSIS_ALARM_MAIL_PORT: ""
-      GESTSIS_ALARM_MAIL_USERNAME: ""
-      GESTSIS_ALARM_MAIL_PASSWORD: ""
-      GESTSIS_ALARM_MAIL_WHITELIST: ""
