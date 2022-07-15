@@ -16,7 +16,8 @@ class AlarmViewSet(viewsets.ModelViewSet):
     serializer_class = AlarmSerializer
 
     def get_queryset(self):
-        key = "ca"
+        # Should change based on the authenticated user
+        keys = ["ca"]
 
         # Django is quite annoying sometimes. For example, in a Many to Many relationship,
         # you would think a simple filter like that would work :
@@ -29,8 +30,8 @@ class AlarmViewSet(viewsets.ModelViewSet):
         queryset = Alarm.objects.prefetch_related(
             Prefetch(
                 'firefighter',
-                queryset=Firefighter.objects.filter(sis__gestsis_key=key)
+                queryset=Firefighter.objects.filter(sis__gestsis_key__in=keys)
             )
-        ).filter(sis__gestsis_key=str(key))
+        ).filter(sis__gestsis_key__in=keys)
 
         return queryset
