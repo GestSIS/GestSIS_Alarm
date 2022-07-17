@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  gestsis_alarm:
+  alarm:
     build: .
     command: >
       sh -c "pip install -r requirements.txt &&
@@ -10,7 +10,7 @@ services:
       python manage.py migrate &&
       python manage.py loaddata sis &&
       python manage.py runserver 0.0.0.0:8000"
-    container_name: alarm
+    container_name: gestsis-alarm
     volumes:
       - .:/usr/src/app
     ports:
