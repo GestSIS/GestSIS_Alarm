@@ -14,7 +14,7 @@ class SisViewSet(viewsets.ModelViewSet):
     serializer_class = SisSerializer
 
 
-class AlarmViewSet(viewsets.ModelViewSet):
+class AlarmViewSet(generics.ListAPIView):
     serializer_class = AlarmSerializer
 
     def get_queryset(self):
