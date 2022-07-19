@@ -54,6 +54,21 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTStatelessUserAuthentication',
+    )
+}
+
+SIMPLE_JWT = {
+    'ALGORITHM': "RS256",
+    'JTI_CLAIM': None,
+    'TOKEN_TYPE_CLAIM': None,
+    'USER_ID_CLAIM': 'data',
+    'ISSUER': 'GestSIS_Auth',
+    "VERIFYING_KEY": open(env('GESTSIS_JWT_PUBLIC_KEY_PATH')).read(),
+}
+
 ROOT_URLCONF = 'gestsis_alarm.urls'
 
 TEMPLATES = [
