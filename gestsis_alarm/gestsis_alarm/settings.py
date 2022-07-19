@@ -67,6 +67,7 @@ SIMPLE_JWT = {
     'USER_ID_CLAIM': 'data',
     'ISSUER': 'GestSIS_Auth',
     "VERIFYING_KEY": open(env('GESTSIS_JWT_PUBLIC_KEY_PATH')).read(),
+    'TOKEN_USER_CLASS': 'admin_panel.models.TokenUser'
 }
 
 ROOT_URLCONF = 'gestsis_alarm.urls'
