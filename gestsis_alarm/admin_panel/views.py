@@ -43,9 +43,15 @@ class AlarmSetterUpdateView(views.APIView):
     """
     Endpoint to change the reading status of an Alarm.
     """
-    def patch(self, request, pk, has_been_read):
+
+    def patch(self, request, pk):
         model = get_object_or_404(Alarm, pk=pk)
-        data = {"has_been_read": has_been_read}
+        has_been_read = request.POST.get("has_been_read")
+
+        if has_been_read not in ["true", "false"]:
+            return Response({"message": "Missing/Invalid has_been_read in body"}, status=status.HTTP_400_BAD_REQUEST)
+
+        data = {"has_been_read": has_been_read == "true"}
         serializer = AlarmSerializer(model, data=data, partial=True)
         if serializer.is_valid():
             serializer.save()
