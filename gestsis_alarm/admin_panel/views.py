@@ -1,4 +1,5 @@
 from rest_framework import viewsets, generics, views, status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from mail_parser.models import Sis, Alarm, Firefighter
@@ -16,6 +17,7 @@ class SisViewSet(viewsets.ModelViewSet):
 
 class AlarmViewSet(generics.ListAPIView):
     serializer_class = AlarmSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         # Should change based on the authenticated user
