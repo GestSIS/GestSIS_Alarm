@@ -34,7 +34,7 @@ class AlarmViewSet(generics.ListAPIView):
                 'firefighter',
                 queryset=Firefighter.objects.filter(sis__gestsis_key__in=keys)
             )
-        ).filter(sis__gestsis_key__in=keys)
+        ).filter(sis__gestsis_key__in=keys, has_been_read=False)
 
         return queryset
 
