@@ -7,6 +7,7 @@ from mail_parser.models import Sis, Alarm, Firefighter
 from django.db.models import Prefetch
 from .serializers import SisSerializer, AlarmSerializer
 from .permissions import IsAdmin
+from django.core.management import call_command
 
 
 class SisViewSet(viewsets.ModelViewSet):
@@ -40,6 +41,10 @@ class AlarmViewSet(generics.ListAPIView):
                 keys = [sis_id]
             else:
                 keys = perms
+
+        # Force update of the database before retrieving data
+        if "force_update" in self.request.query_params:
+            call_command("mail_and_extract")
 
         if keys == "all":
             return Alarm.objects\
