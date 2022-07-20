@@ -50,7 +50,16 @@ class AlarmSetterUpdateView(views.APIView):
     permission_classes = [IsAuthenticated]
 
     def patch(self, request, pk):
+        keys = self.request.user.get_sis_for_permissions(["intervention.modification"])
+
         model = get_object_or_404(Alarm, pk=pk)
+
+        # The filter could have been done in get_object_or_404 to save a query to the database but it would return 404 error
+        # when the user doesn't have to correct permissions
+        user_has_permission = model.sis.filter(gestsis_key__in=keys).exists()
+        if not user_has_permission:
+            return Response({"message": "Invalid permission to access this object"}, status.HTTP_403_FORBIDDEN)
+
         has_been_read = request.POST.get("has_been_read")
 
         if has_been_read not in ["true", "false"]:
