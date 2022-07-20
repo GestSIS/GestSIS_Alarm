@@ -165,28 +165,59 @@ paths:
   /api/alarm/{id}/reading-status/:
     patch:
       operationId: partialUpdateAlarmSetterUpdate
-      description: Endpoint to change the reading status of an Alarm.
+      description: Endpoint to change the reading status of an `Alarm`.
       parameters:
       - name: id
         in: path
         required: true
-        description: ''
+        description: 'alarm id'
         schema:
           type: string
       requestBody:
         content:
           application/json:
-            schema: {}
+            schema:
+              properties:
+                has_been_read:
+                  type: boolean
+              required:
+                - has_been_read
+            example:
+              has_been_read: "true"
           application/x-www-form-urlencoded:
-            schema: {}
+            schema:
+              properties:
+                has_been_read:
+                  type: boolean
+              required:
+                - has_been_read
+            example:
+              has_been_read: "true"
           multipart/form-data:
-            schema: {}
+            schema:
+              properties:
+                has_been_read:
+                  type: boolean
+              required:
+                - has_been_read
+            example:
+              has_been_read: "true"
       responses:
         '200':
           content:
             application/json:
-              schema: {}
-          description: ''
+              schema:
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      has_been_read:
+                        type: boolean
+                  message:
+                    type: string
+          description: 'Return the `id` of the alarm modified and the `has_been_read` parameter. Also, a message is added but you can rely on the status code.'
       tags:
       - "Alarm"
 components:
