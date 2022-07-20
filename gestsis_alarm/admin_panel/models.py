@@ -46,4 +46,4 @@ class TokenUser:
 
     @cached_property
     def is_admin(self):
-        return True  # TODO: Need to be retrieve from the token
+        return False  # TODO: Need to be retrieve from the token
