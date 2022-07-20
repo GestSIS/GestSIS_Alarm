@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from mail_parser.models import Sis, Alarm, Firefighter
 from django.db.models import Prefetch
 from .serializers import SisSerializer, AlarmSerializer
+from .permissions import IsAdmin
 
 
 class SisViewSet(viewsets.ModelViewSet):
@@ -13,6 +14,7 @@ class SisViewSet(viewsets.ModelViewSet):
     """
     queryset = Sis.objects.all()
     serializer_class = SisSerializer
+    permission_classes = [IsAuthenticated, IsAdmin]
 
 
 class AlarmViewSet(generics.ListAPIView):
@@ -50,6 +52,7 @@ class AlarmSetterUpdateView(views.APIView):
     """
     Endpoint to change the reading status of an Alarm.
     """
+    permission_classes = [IsAuthenticated]
 
     def patch(self, request, pk):
         model = get_object_or_404(Alarm, pk=pk)

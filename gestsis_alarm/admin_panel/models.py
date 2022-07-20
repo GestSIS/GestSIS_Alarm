@@ -36,3 +36,7 @@ class TokenUser:
     @cached_property
     def mobiles(self):
         return self.token["data"]["mobiles"]
+
+    @cached_property
+    def is_admin(self):
+        return True  # TODO: Need to be retrieve from the token
