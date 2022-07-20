@@ -1,0 +1,268 @@
+openapi: 3.0.2
+info:
+  title: 'GestSIS Alarm'
+  version: '1.0'
+  description: "To access any endpoint, you need to add "
+
+tags:
+- name: "SIS"
+  description: "Everything about querying SIS"
+- name: "Alarm"
+  description: "Everything about querying Alarms"
+
+paths:
+  /api/sis/:
+    get:
+      operationId: listSis
+      description: List every SIS in the database
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Sis'
+          description: ''
+      tags:
+      - "SIS"
+    post:
+      operationId: createSis
+      description: API endpoint that allows users to be viewed or edited.
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Sis'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Sis'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Sis'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sis'
+          description: ''
+      tags:
+      - "SIS"
+  /api/sis/{id}/:
+    get:
+      operationId: retrieveSis
+      description: API endpoint that allows users to be viewed or edited.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this sis.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sis'
+          description: ''
+      tags:
+      - "SIS"
+    put:
+      operationId: updateSis
+      description: API endpoint that allows users to be viewed or edited.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this sis.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Sis'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Sis'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Sis'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sis'
+          description: ''
+      tags:
+      - "SIS"
+    patch:
+      operationId: partialUpdateSis
+      description: API endpoint that allows users to be viewed or edited.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this sis.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Sis'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Sis'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Sis'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sis'
+          description: ''
+      tags:
+      - "SIS"
+    delete:
+      operationId: destroySis
+      description: API endpoint that allows users to be viewed or edited.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this sis.
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      tags:
+      - "SIS"
+  /api/alarm/:
+    get:
+      operationId: listAlarms
+      description: 'List every alarm with the has_been_read has `false`'
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Alarm'
+          description: ''
+      tags:
+      - "Alarm"
+  /api/alarm/{id}/reading-status/:
+    patch:
+      operationId: partialUpdateAlarmSetterUpdate
+      description: Endpoint to change the reading status of an Alarm.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+          application/x-www-form-urlencoded:
+            schema: {}
+          multipart/form-data:
+            schema: {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      tags:
+      - "Alarm"
+components:
+  schemas:
+    Sis:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        gestsis_key:
+          type: string
+          maxLength: 10
+      required:
+      - name
+      - gestsis_key
+    Alarm:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        address:
+          type: string
+          maxLength: 255
+        complement:
+          type: string
+          maxLength: 255
+        location_wgs84:
+          type: string
+          nullable: true
+          maxLength: 255
+        location_lv95:
+          type: string
+          nullable: true
+          maxLength: 20
+        type:
+          type: string
+          maxLength: 100
+        sis:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        firefighter:
+          type: array
+          items:
+            type: object
+            properties:
+              fullname:
+                type: string
+                maxLength: 255
+              group_name:
+                type: string
+                maxLength: 255
+              group_number:
+                type: string
+                nullable: true
+                maxLength: 20
+              phone:
+                type: string
+                maxLength: 50
+              sis:
+                type: string
+                readOnly: true
+            required:
+            - fullname
+            - group_name
+            - phone
+          readOnly: true
+        has_been_read:
+          type: boolean
+      required:
+      - address
+      - complement
+      - type
