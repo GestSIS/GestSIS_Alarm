@@ -1,4 +1,5 @@
 from rest_framework import viewsets, generics, views, status
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
@@ -22,14 +23,28 @@ class AlarmViewSet(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # If user has admin rights, they bypass all the filters
-        if self.request.user.is_admin:
-            return Alarm.objects\
-                .prefetch_related(Prefetch('firefighter'))\
-                .filter(has_been_read=False)
+        sis_id = self.request.META.get("HTTP_SIS_ID")
+        keys = None
 
-        # Retrieve SIS where the current user has access to
-        keys = self.request.user.get_sis_for_permissions(["intervention.modification"])
+        if self.request.user.is_admin:
+            if sis_id:
+                keys = [sis_id]
+            else:
+                keys = "all"
+        else:
+            perms = self.request.user.get_sis_for_permissions(["intervention.modification"])
+            if sis_id:
+                if sis_id not in perms:
+                    raise PermissionDenied({"message": "Insufficient permission to retrieve the SIS data specified"})
+
+                keys = [sis_id]
+            else:
+                keys = perms
+
+        if keys == "all":
+            return Alarm.objects\
+                    .prefetch_related(Prefetch('firefighter'))\
+                    .filter(has_been_read=False)
 
         # Django is quite annoying sometimes. For example, in a Many to Many relationship,
         # you would think a simple filter like that would work :
