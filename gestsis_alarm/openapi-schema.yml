@@ -170,7 +170,7 @@ paths:
       - name: id
         in: path
         required: true
-        description: 'alarm id'
+        description: 'Alarm id'
         schema:
           type: string
       requestBody:
@@ -204,6 +204,7 @@ paths:
               has_been_read: "true"
       responses:
         '200':
+          description: 'Return the `id` of the alarm modified and the `has_been_read` parameter. Also, a message is added but you can rely on the status code.'
           content:
             application/json:
               schema:
@@ -217,11 +218,48 @@ paths:
                         type: boolean
                   message:
                     type: string
-          description: 'Return the `id` of the alarm modified and the `has_been_read` parameter. Also, a message is added but you can rely on the status code.'
+        '400':
+          description: 'Two errors can happen : If the `has_been_read` has been missing/has a wrong value in the request body or if the serializer return an error (more rarely)'
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/AlarmReadingStatusError'
+                  - $ref: '#/components/schemas/AlarmReadingStatusSuccess'
+              examples:
+                error:
+                  summary: "Missing body"
+                  value:
+                    message: "Missing/Invalid has_been_read in body"
+                success:
+                  summary: 'Serializer error'
+                  value:
+                    data:
+                      id: 1
+
       tags:
       - "Alarm"
 components:
   schemas:
+    AlarmReadingStatusError:
+      type: object
+      properties:
+        message:
+          type: string
+    AlarmReadingStatusSuccess:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            id:
+              type: integer
+            has_been_read:
+              type: boolean
+        message:
+          type: string
+
+
     Sis:
       type: object
       properties:
