@@ -20,8 +20,13 @@ class AlarmViewSet(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # Should change based on the authenticated user
-        keys = ["ca"]
+        keys = []
+
+        # Retrieve SIS where the current user has access to
+        permissions = ["admin.tout", "intervention.modification"]
+        for sis, permission_list in self.request.user.permissions.items():
+            if any(p in permissions for p in permission_list):
+                keys.append(sis)
 
         # Django is quite annoying sometimes. For example, in a Many to Many relationship,
         # you would think a simple filter like that would work :
