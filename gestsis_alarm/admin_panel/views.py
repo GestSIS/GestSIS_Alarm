@@ -22,6 +22,12 @@ class AlarmViewSet(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        # If user has admin rights, they bypass all the filters
+        if self.request.user.is_admin:
+            return Alarm.objects\
+                .prefetch_related(Prefetch('firefighter'))\
+                .filter(has_been_read=False)
+
         # Retrieve SIS where the current user has access to
         keys = self.request.user.get_sis_for_permissions(["intervention.modification"])
 
