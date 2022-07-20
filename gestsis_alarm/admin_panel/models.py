@@ -37,6 +37,13 @@ class TokenUser:
     def mobiles(self):
         return self.token["data"]["mobiles"]
 
+    def get_sis_for_permissions(self, permissions: list):
+        keys = []
+        for sis, permission_list in self.permissions.items():
+            if any(p in permissions for p in permission_list):
+                keys.append(sis)
+        return keys
+
     @cached_property
     def is_admin(self):
         return True  # TODO: Need to be retrieve from the token
