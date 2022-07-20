@@ -62,9 +62,10 @@ class AlarmSetterUpdateView(views.APIView):
 
         # The filter could have been done in get_object_or_404 to save a query to the database but it would return 404 error
         # when the user doesn't have to correct permissions
-        user_has_permission = model.sis.filter(gestsis_key__in=keys).exists()
-        if not user_has_permission:
-            return Response({"message": "Invalid permission to access this object"}, status.HTTP_403_FORBIDDEN)
+        if not request.user.is_admin:
+            user_has_permission = model.sis.filter(gestsis_key__in=keys).exists()
+            if not user_has_permission:
+                return Response({"message": "Invalid permission to access this object"}, status.HTTP_403_FORBIDDEN)
 
         has_been_read = request.POST.get("has_been_read")
 
