@@ -34,7 +34,7 @@ paths:
       - "SIS"
     post:
       operationId: createSis
-      description: API endpoint that allows users to be viewed or edited.
+      description: Create a new sis
       parameters: []
       requestBody:
         content:
@@ -61,7 +61,7 @@ paths:
   /api/sis/{id}/:
     get:
       operationId: retrieveSis
-      description: API endpoint that allows users to be viewed or edited.
+      description: Retrieve a specific SIS
       parameters:
       - name: id
         in: path
@@ -82,7 +82,7 @@ paths:
       - "SIS"
     put:
       operationId: updateSis
-      description: API endpoint that allows users to be viewed or edited.
+      description: Update the whole sis information (key and name)
       parameters:
       - name: id
         in: path
@@ -114,7 +114,7 @@ paths:
       - "SIS"
     patch:
       operationId: partialUpdateSis
-      description: API endpoint that allows users to be viewed or edited.
+      description: Partially update a SIS
       parameters:
       - name: id
         in: path
@@ -146,7 +146,7 @@ paths:
       - "SIS"
     delete:
       operationId: destroySis
-      description: API endpoint that allows users to be viewed or edited.
+      description: Delete the sis
       parameters:
       - name: id
         in: path
@@ -164,8 +164,18 @@ paths:
   /api/alarm/:
     get:
       operationId: listAlarms
-      description: 'List every alarm with the has_been_read has `false`'
-      parameters: []
+      description: List every alarm that hasn't been read before
+      parameters:
+        - in: header
+          name: SIS-ID
+          description: Filter the list of alarm by the id specified in this field
+          schema:
+            type: string
+        - in: query
+          name: force_update
+          schema:
+            type: boolean
+          description: If this flag is specified, it will check with the mail server if there is reports that hasn't been added to the database
       responses:
         '200':
           content:
