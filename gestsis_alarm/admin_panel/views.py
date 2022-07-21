@@ -51,14 +51,10 @@ class AlarmViewSet(generics.ListAPIView):
                     .prefetch_related(Prefetch('firefighter'))\
                     .filter(has_been_read=False)
 
-        # Django is quite annoying sometimes. For example, in a Many to Many relationship,
-        # you would think a simple filter like that would work :
-        # queryset = Alarm.objects.filter(sis__gestsis_key=key, firefighter__sis__gestsis_key=key)
-        # It doesn't ! Even thought, a lot of example in the django documentation tell otherwise.
-        # It's simply because you need to prefetch the data in the other end of the M2M relationship
-        # and apply it directly. A simple `prefetch_related` and after the filter method won't work !
-        # You need to include the filter for the nested table in the prefetch !!
-        # My lifesaver : https://stackoverflow.com/a/55315566
+        # The prefetching here is done because you can't filter a M2M relationship directly without the data being there.
+        # The filter in the prefetch is really important because otherwise, it won't work and you would have all firefighter attached to this alarm.
+        # You might find MANY examples in the official Django Documentation that shows you that you can do it without prefetching, but they are wrong.
+        # https://stackoverflow.com/a/55315566
         queryset = Alarm.objects.prefetch_related(
             Prefetch(
                 'firefighter',
