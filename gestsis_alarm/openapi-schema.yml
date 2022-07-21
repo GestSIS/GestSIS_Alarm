@@ -2,13 +2,16 @@ openapi: 3.0.2
 info:
   title: 'GestSIS Alarm'
   version: '1.0'
-  description: "To access any endpoint, you need to add "
+  description: "Every endpoint on the list below needs you to be authenticated. You need to obtain token from GestSIS Auth and use it for every request in the `Authorization` Header."
 
 tags:
 - name: "SIS"
   description: "Everything about querying SIS"
 - name: "Alarm"
   description: "Everything about querying Alarms"
+
+security:
+  - bearerAuth: []
 
 paths:
   /api/sis/:
@@ -25,6 +28,8 @@ paths:
                 items:
                   $ref: '#/components/schemas/Sis'
           description: ''
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
       tags:
       - "SIS"
     post:
@@ -49,6 +54,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Sis'
           description: ''
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
       tags:
       - "SIS"
   /api/sis/{id}/:
@@ -69,6 +76,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Sis'
           description: ''
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
       tags:
       - "SIS"
     put:
@@ -99,6 +108,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Sis'
           description: ''
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
       tags:
       - "SIS"
     patch:
@@ -129,6 +140,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Sis'
           description: ''
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
       tags:
       - "SIS"
     delete:
@@ -144,6 +157,8 @@ paths:
       responses:
         '204':
           description: ''
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
       tags:
       - "SIS"
   /api/alarm/:
@@ -160,6 +175,8 @@ paths:
                 items:
                   $ref: '#/components/schemas/Alarm'
           description: ''
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
       tags:
       - "Alarm"
   /api/alarm/{id}/reading-status/:
@@ -236,10 +253,32 @@ paths:
                   value:
                     data:
                       id: 1
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
 
       tags:
       - "Alarm"
+
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
+      content:
+        application/json:
+          example:
+            detail: "Given token not valid for any token type"
+            code: "token_not_valid"
+            messages:
+              token_class: "AccessToken"
+              token_type: "access"
+              message: "Token is invalid or expired"
+
   schemas:
     AlarmReadingStatusError:
       type: object
