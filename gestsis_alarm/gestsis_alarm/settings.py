@@ -94,10 +94,20 @@ WSGI_APPLICATION = 'gestsis_alarm.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
+DB_URL = env.db_url("GESTSIS_DATABASE_URL")
+
+DB_NAME = (os.path.join(BASE_DIR, DB_URL.get('NAME'))
+           if DB_URL.get('NAME').startswith('./') and DB_URL.get('ENGINE') == "django.db.backends.sqlite3"
+           else DB_URL.get('NAME'))
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': DB_URL.get('ENGINE'),
+        'NAME': DB_NAME,
+        'USER': DB_URL.get('USER'),
+        'PASSWORD': DB_URL.get('PASSWORD'),
+        'HOST': DB_URL.get('HOST'),
+        'PORT': DB_URL.get('PORT')
     }
 }
 
