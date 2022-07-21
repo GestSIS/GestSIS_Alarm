@@ -4,7 +4,7 @@ Django app managing the alarm for GestSIS
 
 ## Structure
 
-- The project name is `gestsis_alarm`, in it, there is two projects :
+- The project name is `gestsis_alarm`, in it, there is two applications:
   - `admin_panel` containing all the code for the admin view
   - `mail_parser` containing all the code for retrieving mails and parsing the PDF in it
 
@@ -12,7 +12,27 @@ Django app managing the alarm for GestSIS
 
 ### Using Docker
 
-[TODO]
+To use this project with Docker, you need to do the following steps:
+
+1. `git clone` the project
+2. Copy the`.env.example` file to `.env`
+3. Specify the missing values in it (except for `GESTSIS_ALARM_SECRET_KEY`, it will be generated automatically)
+4. Run Docker compose
+```bash
+docker-compose up -d
+```
+4. If you go to `http://127.0.0.1:8000`, you should see the django webpage
+
+#### Access django terminal
+
+If you want to access the terminal inside the docker container to run `manage.py` commands, you need to run the following command :
+```bash
+docker exec -it alarm bash
+```
+Or with docker-compose :
+```bash
+docker-compose exec alarm bash
+```
 
 ### Manually
 
@@ -46,6 +66,7 @@ python init.py
 It will do two things :
   - Copy the`.env.example` file to `.env`
   - Populate the `.env` file with a secret key that will be used by Django
+    - By default, if a key is already set, it won't be overridden, add the argument `-f` to the script to force the generation of a new key
 
 The script has done some jobs for you, but you need to do the last step :
 
