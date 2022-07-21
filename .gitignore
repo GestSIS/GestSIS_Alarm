@@ -42,3 +42,4 @@ MANIFEST
 .env
 
 */storage/pdf/*.pdf
+*/storage/keys/*
