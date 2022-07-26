@@ -7,6 +7,8 @@ class TokenUser:
     Model used by Simple JWT to map a token to a non-existent user
     """
 
+    # A TokenUser is only returned by simple-jwt if the token is valid (not expired and the signature match with the public key)
+    # so these two properties are ALWAYS true
     is_active = True
     is_authenticated = True
 
@@ -46,4 +48,4 @@ class TokenUser:
 
     @cached_property
     def is_admin(self):
-        return self.token["data"].get("admin", None) == True  # The comparison is done here to handle if admin is "null"
+        return self.token["data"].get("admin", None) is True  # The comparison is done here to handle if admin is "null"
