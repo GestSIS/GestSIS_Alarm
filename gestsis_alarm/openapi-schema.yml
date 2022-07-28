@@ -1,0 +1,386 @@
+openapi: 3.0.2
+info:
+  title: 'GestSIS Alarm'
+  version: '1.0'
+  description: "Every endpoint on the list below needs you to be authenticated. You need to obtain token from GestSIS Auth and use it for every request in the `Authorization` Header."
+
+tags:
+- name: "SIS"
+  description: "Everything about querying SIS"
+- name: "Alarm"
+  description: "Everything about querying Alarms"
+
+security:
+  - bearerAuth: []
+
+paths:
+  /api/sis/:
+    get:
+      operationId: listSis
+      description: List every SIS in the database
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Sis'
+          description: ''
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      tags:
+      - "SIS"
+    post:
+      operationId: createSis
+      description: Create a new sis
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Sis'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Sis'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Sis'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sis'
+          description: ''
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      tags:
+      - "SIS"
+  /api/sis/{id}/:
+    get:
+      operationId: retrieveSis
+      description: Retrieve a specific SIS
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this sis.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sis'
+          description: ''
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      tags:
+      - "SIS"
+    put:
+      operationId: updateSis
+      description: Update the whole sis information (key and name)
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this sis.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Sis'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Sis'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Sis'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sis'
+          description: ''
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      tags:
+      - "SIS"
+    patch:
+      operationId: partialUpdateSis
+      description: Partially update a SIS
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this sis.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Sis'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Sis'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Sis'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sis'
+          description: ''
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      tags:
+      - "SIS"
+    delete:
+      operationId: destroySis
+      description: Delete the sis
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this sis.
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      tags:
+      - "SIS"
+  /api/alarm/:
+    get:
+      operationId: listAlarms
+      description: List every alarm that hasn't been read before
+      parameters:
+        - in: header
+          name: SIS-ID
+          description: Filter the list of alarm by the id specified in this field
+          schema:
+            type: string
+        - in: query
+          name: force_update
+          schema:
+            type: boolean
+          description: If this flag is specified, it will check with the mail server if there is reports that hasn't been added to the database
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Alarm'
+          description: ''
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      tags:
+      - "Alarm"
+  /api/alarm/{id}/reading-status/:
+    patch:
+      operationId: partialUpdateAlarmSetterUpdate
+      description: Endpoint to change the reading status of an `Alarm`.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: 'Alarm id'
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                has_been_read:
+                  type: boolean
+              required:
+                - has_been_read
+            example:
+              has_been_read: "true"
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                has_been_read:
+                  type: boolean
+              required:
+                - has_been_read
+            example:
+              has_been_read: "true"
+          multipart/form-data:
+            schema:
+              properties:
+                has_been_read:
+                  type: boolean
+              required:
+                - has_been_read
+            example:
+              has_been_read: "true"
+      responses:
+        '200':
+          description: 'Return the `id` of the alarm modified and the `has_been_read` parameter. Also, a message is added but you can rely on the status code.'
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      has_been_read:
+                        type: boolean
+                  message:
+                    type: string
+        '400':
+          description: 'Two errors can happen : If the `has_been_read` has been missing/has a wrong value in the request body or if the serializer return an error (more rarely)'
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/AlarmReadingStatusError'
+                  - $ref: '#/components/schemas/AlarmReadingStatusSuccess'
+              examples:
+                error:
+                  summary: "Missing body"
+                  value:
+                    message: "Missing/Invalid has_been_read in body"
+                success:
+                  summary: 'Serializer error'
+                  value:
+                    data:
+                      id: 1
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+      tags:
+      - "Alarm"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
+      content:
+        application/json:
+          example:
+            detail: "Given token not valid for any token type"
+            code: "token_not_valid"
+            messages:
+              token_class: "AccessToken"
+              token_type: "access"
+              message: "Token is invalid or expired"
+
+  schemas:
+    AlarmReadingStatusError:
+      type: object
+      properties:
+        message:
+          type: string
+    AlarmReadingStatusSuccess:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            id:
+              type: integer
+            has_been_read:
+              type: boolean
+        message:
+          type: string
+
+
+    Sis:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        gestsis_key:
+          type: string
+          maxLength: 10
+      required:
+      - name
+      - gestsis_key
+    Alarm:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        address:
+          type: string
+          maxLength: 255
+        complement:
+          type: string
+          maxLength: 255
+        location_wgs84:
+          type: string
+          nullable: true
+          maxLength: 255
+        location_lv95:
+          type: string
+          nullable: true
+          maxLength: 20
+        type:
+          type: string
+          maxLength: 100
+        sis:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        firefighter:
+          type: array
+          items:
+            type: object
+            properties:
+              fullname:
+                type: string
+                maxLength: 255
+              group_name:
+                type: string
+                maxLength: 255
+              group_number:
+                type: string
+                nullable: true
+                maxLength: 20
+              phone:
+                type: string
+                maxLength: 50
+              sis:
+                type: string
+                readOnly: true
+            required:
+            - fullname
+            - group_name
+            - phone
+          readOnly: true
+        has_been_read:
+          type: boolean
+      required:
+      - address
+      - complement
+      - type

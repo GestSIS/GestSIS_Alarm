@@ -9,3 +9,5 @@ pdfminer.six==20220524
 pycparser==2.21
 sqlparse==0.4.2
 tzdata==2022.1
+djangorestframework==3.13.1
+djangorestframework-simplejwt[crypto]==5.2.0

@@ -175,6 +175,36 @@ It uses the environment variables for the mail settings, and it can't be overwri
 python manage.py mail_and_extract
 ```
 
+## Databases
+
+This project supports SQLite out of the box but you can change the engine for one supported by Django:
+- MySQL/MariaDB
+- PostgreSQL
+- Oracle
+
+To do that, you will need to change the `GESTSIS_DATABASE_URL` variable in the`.env` file and follow the url schema below :
+```ini
+# For SQLite
+# (you can also add a dot (.) to make it relative to the gestsis_alarm folder)
+GESTSIS_DATABASE_URL=sqlite:////absolute/path/to/db/file
+
+# PostgreSQL
+GESTSIS_DATABASE_URL=postgres://user:password@host:port/dbname
+
+# For MySQL/MariaDB
+GESTSIS_DATABASE_URL=mysql://user:password@host:port/dbname
+
+# For Oracle
+GESTSIS_DATABASE_URL=oracle://user:password@host:port/dbname
+```
+
+If you don't choose SQLite, **you will need to install additional dependencies** :
+- MySQL/MariaDB : `mysqlclient` (`pip install mysqlclient`)
+- PostgreSQL : `psycopg2` (`pip install psycopg2`)
+- Oracle : [cx_Oracle driver](https://oracle.github.io/python-cx_Oracle/)
+
+More infos available in the [Django documentation](https://docs.djangoproject.com/en/4.0/ref/databases/)
+
 ## Unit tests
 
 This project comes with some unit tests to validate the code.
