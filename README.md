@@ -70,23 +70,23 @@ It will do two things :
 
 The script has done some jobs for you, but you need to do the last step :
 
-5. Open the configuration file (`gestsis_alarm/.env`) and specify the missing values.
+5. Open the configuration file (`.env`) and specify the missing values.
 
 Theses are important because without them, the application won't function properly.
 
 6. Migrate the database
 ```
-python gestsis_alarm/manage.py migrate
+python manage.py migrate
 ```
 
 7. Add initial data in the database
 ```
-python gestsis_alarm/manage.py loaddata sis
+python manage.py loaddata sis
 ```
 
 7. Finally, you can run the app !
 ```bash
-python gestsis_alarm/manage.py runserver
+python manage.py runserver
 ```
 
 ## Usage
@@ -155,7 +155,7 @@ optional arguments:
 #### Example
 
 ```bash
-# Extract data from the pdf file named 'report.pdf' placed in the `gestsis_alarm/storage` folder (Relative path)
+# Extract data from the pdf file named 'report.pdf' placed in the `storage` folder (Relative path)
 python manage.py extract_pdf report.pdf
 
 # Extract data from the pdf file named 'mobilisation.pdf' placed in the folder `/home/public/reports' (Absolute path)
@@ -208,7 +208,7 @@ More infos available in the [Django documentation](https://docs.djangoproject.co
 ## Unit tests
 
 This project comes with some unit tests to validate the code.
-If you want to run them, go to the `gestsis_alarm` folder (it contains the `manage.py` file) and run the following command :
+If you want to run them, run the following command :
 ```bash
 python manage.py test
 ```

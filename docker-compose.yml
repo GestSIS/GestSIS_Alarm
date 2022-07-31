@@ -4,7 +4,7 @@ services:
   alarm:
     build: .
     command: >
-      sh -c "pip install -r requirements.txt && python init.py && cd gestsis_alarm && python manage.py migrate && python manage.py loaddata sis && python manage.py runserver 0.0.0.0:8002"
+      sh -c "pip install -r requirements.txt && python _scripts/init.py && python manage.py migrate && python manage.py loaddata sis && python manage.py runserver 0.0.0.0:8002"
     container_name: gestsis-alarm
     volumes:
       - .:/usr/src/app

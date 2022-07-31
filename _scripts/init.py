@@ -23,8 +23,8 @@ force_replace = (len(sys.argv) > 1 and sys.argv[1] == "-f")
 # Get the absolute path of the directory containing this file
 file_dir = os.path.dirname(os.path.realpath(__file__))
 
-ENV_FILENAME = os.path.join(file_dir, "gestsis_alarm", ".env")
-ENV_EXAMPLE_FILENAME = os.path.join(file_dir, "gestsis_alarm", ".env.example")
+ENV_FILENAME = os.path.join(file_dir, "..", ".env")
+ENV_EXAMPLE_FILENAME = os.path.join(file_dir, "..", ".env.example")
 
 # Create .env file from the example if the file isn't found
 if not os.path.exists(ENV_FILENAME):

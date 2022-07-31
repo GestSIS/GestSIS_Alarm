@@ -41,5 +41,5 @@ MANIFEST
 # Environments variables
 .env
 
-*/storage/pdf/*.pdf
-*/storage/keys/*
+storage/pdf/*.pdf
+storage/keys/*
