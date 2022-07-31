@@ -39,8 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'mail_parser',
-    'admin_panel',
+    'mail_parser.apps.MailParserConfig',
+    'admin_panel.apps.AdminPanelConfig',
     'rest_framework'
 ]
 
