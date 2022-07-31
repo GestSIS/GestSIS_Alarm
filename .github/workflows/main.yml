@@ -38,7 +38,7 @@ jobs:
         run: ssh staging "cd ~/apps/alarm.gestsis.ch && source ~/virtualenv/apps/alarm.gestsis.ch/3.8/bin/activate && pip install -r requirements.txt"
 
       - name: Run migrations
-        run: ssh staging "cd ~/apps/alarm.gestsis.ch/gestsis_alarm && source ~/virtualenv/apps/alarm.gestsis.ch/3.8/bin/activate && python admin.py run_migrate"
+        run: ssh staging "cd ~/apps/alarm.gestsis.ch/gestsis_alarm && source ~/virtualenv/apps/alarm.gestsis.ch/3.8/bin/activate && python manage.py run_migrate"
 
       - name: Restart server
         run: ssh staging "touch ~/apps/print.gestsis.ch/tmp/restart.txt"

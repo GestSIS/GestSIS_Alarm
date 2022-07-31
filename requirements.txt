@@ -11,3 +11,5 @@ sqlparse==0.4.2
 tzdata==2022.1
 djangorestframework==3.13.1
 djangorestframework-simplejwt[crypto]==5.2.0
+mysqlclient==2.1.1
+mysql-connector-python==8.0.29
