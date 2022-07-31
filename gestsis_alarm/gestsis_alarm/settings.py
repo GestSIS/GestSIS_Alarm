@@ -107,7 +107,10 @@ DATABASES = {
         'USER': DB_URL.get('USER'),
         'PASSWORD': DB_URL.get('PASSWORD'),
         'HOST': DB_URL.get('HOST'),
-        'PORT': DB_URL.get('PORT')
+        'PORT': DB_URL.get('PORT'),
+        'OPTIONS': {
+            "use_pure": True
+        }
     }
 }
 

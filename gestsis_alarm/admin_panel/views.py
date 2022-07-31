@@ -9,7 +9,6 @@ from .serializers import SisSerializer, AlarmSerializer
 from .permissions import IsAdmin
 from django.core.management import call_command
 
-
 class SisViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
