@@ -14,7 +14,7 @@ security:
   - bearerAuth: []
 
 paths:
-  /api/sis/:
+  /api/v1/sis/:
     get:
       operationId: listSis
       description: List every SIS in the database
@@ -58,7 +58,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
       tags:
       - "SIS"
-  /api/sis/{id}/:
+  /api/v1/sis/{id}/:
     get:
       operationId: retrieveSis
       description: Retrieve a specific SIS
@@ -161,7 +161,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
       tags:
       - "SIS"
-  /api/alarm/:
+  /api/v1/alarm/:
     get:
       operationId: listAlarms
       description: List every alarm that hasn't been read before
@@ -189,7 +189,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
       tags:
       - "Alarm"
-  /api/alarm/{id}/reading-status/:
+  /api/v1/alarm/{id}/reading-status/:
     patch:
       operationId: partialUpdateAlarmSetterUpdate
       description: Endpoint to change the reading status of an `Alarm`.
