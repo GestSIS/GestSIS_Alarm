@@ -44,8 +44,8 @@ class PDFExtractor:
         self.re_pattern_sis_group = re.compile(r"\*?(\d+) ([\w\- ]+)", flags=re.UNICODE)
 
         self.data_extracted = PDFData()
-        self.stats_current_firefighter = None
-        self.real_current_firefighter = None
+        self.current_firefighter_real = None
+        self.current_firefighter_stats = None
 
     def extract_data(self, filename: str):
 

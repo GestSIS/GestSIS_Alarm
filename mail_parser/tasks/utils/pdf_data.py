@@ -4,10 +4,12 @@ class PDFData:
     """
     Sort of a container to store the information extracted from the PDF
     """
-    message = None
-    firefighter_coming = {}
-    _current_group = None
-    _current_sis = None
+
+    def __init__(self):
+        self.message = None
+        self.firefighter_coming = {}
+        self._current_group = None
+        self._current_sis = None
 
     def add_message_info(self, message: PDFMessage):
         self.message = message
