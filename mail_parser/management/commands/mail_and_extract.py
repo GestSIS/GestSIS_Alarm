@@ -34,11 +34,11 @@ class Command(PDFCommand):
         pdf_downloaded = mc.check_for_new_messages()
 
         allowed_sis = Sis.objects.values_list("name", flat=True)
-        extractor = PDFExtractor(allowed_sis)
-
+        
         self.stdout.write("Retrieved {} files from the mail server".format(len(pdf_downloaded)))
         logger.info("Retrieved {} files from the mail server".format(len(pdf_downloaded)))
 
         for pdf_file in pdf_downloaded:
+            extractor = PDFExtractor(allowed_sis)
             self.stdout.write(pdf_file)
             self._handle_pdf(pdf_file, os.path.join(settings.MEDIA_ROOT, "pdf", pdf_file), extractor)
