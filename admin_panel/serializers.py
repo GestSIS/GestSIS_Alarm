@@ -20,8 +20,8 @@ class FirefighterSerializer(serializers.ModelSerializer):
 
 class AlarmSerializer(serializers.ModelSerializer):
     sis = serializers.SlugRelatedField(slug_field="gestsis_key", read_only=True, many=True)
-    firefighter = FirefighterSerializer(read_only=True, many=True)
+    firefighters = FirefighterSerializer(read_only=True, many=True)
 
     class Meta:
         model = Alarm
-        fields = ['id', 'address', 'complement', 'location_wgs84', 'location_lv95', 'type', 'sis', 'firefighter', 'has_been_read']
+        fields = ['id', 'address', 'complement', 'location_wgs84', 'location_lv95', 'type', 'sis', 'firefighters', 'has_been_read']

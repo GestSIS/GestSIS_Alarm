@@ -64,8 +64,7 @@ class PDFCommand(BaseCommand):
 
         # Add firefighters into the database
         firefighters = []
-        firefighters_relations = []
-
+        
         firefighters_in_db = list(Firefighter.objects.all())
 
         for sis, groups in data.firefighter_coming.items():
@@ -74,16 +73,18 @@ class PDFCommand(BaseCommand):
 
             for group_name, group_data in groups.items():
                 for person in group_data["firefighters"]:
-                    f = Firefighter(fullname=person["name"], phone=person["phone"], sis=s,
-                                    group_name=group_name, group_number=str(group_data["no"])
-                                    )
+                    f = Firefighter(
+                        fullname=person["name"],
+                        phone=person["phone"],
+                        sis=s,
+                        group_name=group_name,
+                        group_number=str(group_data["no"]),
+                        alarm=a
+                    )
                     if f not in firefighters_in_db:
                         firefighters.append(f)
-                        firefighters_relations.append(Alarm.firefighter.through(firefighter=f, alarm=a))
 
-        # bulk_create doesn't support many-to-many relationship, so we have to create the entry in the relationship table manually
         Firefighter.objects.bulk_create(firefighters)
-        Alarm.firefighter.through.objects.bulk_create(firefighters_relations)
 
         # Save file in database to prevent from reading it again
         file_obj = File(filename=filename, alarm=a)

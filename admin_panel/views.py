@@ -47,7 +47,7 @@ class AlarmViewSet(generics.ListAPIView):
 
         if keys == "all":
             return Alarm.objects\
-                    .prefetch_related(Prefetch('firefighter'))\
+                    .prefetch_related(Prefetch('firefighters'))\
                     .filter(has_been_read=False)
 
         # The prefetching here is done because you can't filter a M2M relationship directly without the data being there.
@@ -56,7 +56,7 @@ class AlarmViewSet(generics.ListAPIView):
         # https://stackoverflow.com/a/55315566
         queryset = Alarm.objects.prefetch_related(
             Prefetch(
-                'firefighter',
+                'firefighters',
                 queryset=Firefighter.objects.filter(sis__gestsis_key__in=keys)
             )
         ).filter(sis__gestsis_key__in=keys, has_been_read=False)
