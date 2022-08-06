@@ -175,7 +175,7 @@ paths:
           name: force_update
           schema:
             type: boolean
-          description: If this flag is specified, it will check with the mail server if there is reports that hasn't been added to the database
+          description: If this flag is true, it will check with the mail server if there is reports that hasn't been added to the database
       responses:
         '200':
           content:

@@ -42,7 +42,7 @@ class AlarmViewSet(generics.ListAPIView):
                 keys = perms
 
         # Force update of the database before retrieving data
-        if "force_update" in self.request.query_params:
+        if "force_update" in self.request.query_params and self.request.query_params["force_update"] == "true":
             call_command("mail_and_extract")
 
         if keys == "all":
