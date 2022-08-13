@@ -352,6 +352,16 @@ components:
           items:
             type: string
           readOnly: true
+        groupes:
+          type: array
+          items:
+            type: object
+            properties:
+              number:
+                type: integer
+                nullable: true
+              name:
+                type: string
         firefighter:
           type: array
           items:

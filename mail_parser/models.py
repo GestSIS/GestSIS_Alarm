@@ -23,6 +23,15 @@ class Alarm(models.Model):
     def __str__(self):
         return self.address
 
+class Group(models.Model):
+    sis = models.ForeignKey(Sis, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    number = models.CharField(max_length=20, null=True)
+    alarm = models.ForeignKey(Alarm, related_name='groups', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.number + " " + self.name
+
 class Firefighter(models.Model):
     sis = models.ForeignKey(Sis, on_delete=models.CASCADE)
     group_name = models.CharField(max_length=255)

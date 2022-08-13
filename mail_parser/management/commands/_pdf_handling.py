@@ -1,7 +1,7 @@
 from django.core.management import BaseCommand
 
 from ...tasks.pdf_extraction import PDFExtractor, PDFExtractionException
-from ...models import Alarm, File, Firefighter, Sis
+from ...models import Alarm, File, Firefighter, Sis, Group
 from ...utils.lv95_converter import convert_lv95_to_wgs84
 
 import logging
@@ -64,27 +64,31 @@ class PDFCommand(BaseCommand):
 
         # Add firefighters into the database
         firefighters = []
+        groups = []
         
-        firefighters_in_db = list(Firefighter.objects.all())
-
-        for sis, groups in data.firefighter_coming.items():
+        for sis, sis_groups in data.firefighter_coming.items():
             s = Sis.objects.get(name=sis)
             a.sis.add(s)
 
-            for group_name, group_data in groups.items():
+            for group_name, group_data in sis_groups.items():
+                groups.append(Group(
+                    sis=s,
+                    name=group_name,
+                    number=str(group_data["no"]),
+                    alarm=a
+                ))
                 for person in group_data["firefighters"]:
-                    f = Firefighter(
+                    firefighters.append(Firefighter(
                         fullname=person["name"],
                         phone=person["phone"],
                         sis=s,
                         group_name=group_name,
                         group_number=str(group_data["no"]),
                         alarm=a
-                    )
-                    if f not in firefighters_in_db:
-                        firefighters.append(f)
+                    ))
 
         Firefighter.objects.bulk_create(firefighters)
+        Group.objects.bulk_create(groups)
 
         # Save file in database to prevent from reading it again
         file_obj = File(filename=filename, alarm=a)

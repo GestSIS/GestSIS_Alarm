@@ -3,7 +3,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from mail_parser.models import Sis, Alarm, Firefighter
+from mail_parser.models import Sis, Alarm, Firefighter, Group
 from django.db.models import Prefetch
 from .serializers import SisSerializer, AlarmSerializer
 from .permissions import IsAdmin
@@ -48,6 +48,7 @@ class AlarmViewSet(generics.ListAPIView):
         if keys == "all":
             return Alarm.objects\
                     .prefetch_related(Prefetch('firefighters'))\
+                    .prefetch_related(Prefetch('groups'))\
                     .filter(has_been_read=False)
 
         # The prefetching here is done because you can't filter a M2M relationship directly without the data being there.
@@ -58,6 +59,11 @@ class AlarmViewSet(generics.ListAPIView):
             Prefetch(
                 'firefighters',
                 queryset=Firefighter.objects.filter(sis__gestsis_key__in=keys)
+            )
+        ).prefetch_related(
+            Prefetch(
+                'groups',
+                queryset=Group.objects.filter(sis__gestsis_key__in=keys)
             )
         ).filter(sis__gestsis_key__in=keys, has_been_read=False)
 
