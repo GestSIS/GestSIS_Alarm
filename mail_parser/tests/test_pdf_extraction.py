@@ -50,10 +50,16 @@ class TestPDFExtraction(TestCase):
 
         data = self.extractor.extract_data(filename)
 
-        self.assertEqual(data.message.alarm_type, "FEU BAT ROUGE")
-        self.assertEqual(data.message.lv95_coordinate, "2580000,1240000")
-        self.assertEqual(data.message.event_address, "2800 Delémont, Vainqueurs 42")
-        self.assertEqual(data.message.intervention_complement, "")
+        self.assertEqual(data.header.description, "Feu bâtiment")
+        self.assertEqual(data.header.date_creation, "07/06/2021 00:35:15")
+        self.assertEqual(data.header.debut_alarme, "07/06/2021 00:36:45")
+        self.assertEqual(data.header.fin_alarme, "07/06/2021 00:40:37")
+        self.assertEqual(data.header.alarm_type, "Alarme réelle")
+        self.assertEqual(data.header.message.code, "FEU BAT")
+        self.assertEqual(data.header.message.couleur, "ROUGE")
+        self.assertEqual(data.header.message.lv95_coordinate, "2580000,1240000")
+        self.assertEqual(data.header.message.event_address, "2800 Delémont, Vainqueurs 42")
+        self.assertEqual(data.header.message.intervention_complement, "")
 
     def test_message_extraction_complement(self):
         """Test if the message is correctly extracted (with complement)"""
@@ -61,10 +67,16 @@ class TestPDFExtraction(TestCase):
 
         data = self.extractor.extract_data(filename)
 
-        self.assertEqual(data.message.alarm_type, "FEU BAT ROUGE")
-        self.assertEqual(data.message.lv95_coordinate, "2580000,1240000")
-        self.assertEqual(data.message.event_address, "2800 Delémont, Vainqueurs 42")
-        self.assertEqual(data.message.intervention_complement, "Ferme brûlée")
+        self.assertEqual(data.header.description, "Feu bâtiment")
+        self.assertEqual(data.header.date_creation, "07/06/2021 00:35:15")
+        self.assertEqual(data.header.debut_alarme, "07/06/2021 00:36:45")
+        self.assertEqual(data.header.fin_alarme, "07/06/2021 00:40:37")
+        self.assertEqual(data.header.alarm_type, "Alarme réelle")
+        self.assertEqual(data.header.message.code, "FEU BAT")
+        self.assertEqual(data.header.message.couleur, "ROUGE")
+        self.assertEqual(data.header.message.lv95_coordinate, "2580000,1240000")
+        self.assertEqual(data.header.message.event_address, "2800 Delémont, Vainqueurs 42")
+        self.assertEqual(data.header.message.intervention_complement, "Ferme brûlée")
 
     def test_firefighter_extraction(self):
         """Test if the correct firefighter are retrieve by the script. Check for 3 numbers and names with accents"""

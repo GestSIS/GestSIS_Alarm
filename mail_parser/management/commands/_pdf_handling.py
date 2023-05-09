@@ -59,7 +59,8 @@ class PDFCommand(BaseCommand):
             fin_alarme=data.header.fin_alarme,
 
             # Données du message
-            code=data.header.message.alarm_type,
+            code=data.header.message.code,
+            couleur=data.header.message.couleur,
             address=data.header.message.event_address,
             location_lv95=data.header.message.lv95_coordinate,
             location_wgs84=wgs84_coord,

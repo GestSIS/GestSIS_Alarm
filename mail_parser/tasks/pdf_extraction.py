@@ -204,13 +204,13 @@ class PDFExtractor:
             if isinstance(element, LTTextContainer) and element.get_text().startswith("Type d'alarme:\n"):
                 state = 'type'
             elif isinstance(element, LTTextContainer) and state == 'type':
-                header.alarm_type = element.get_text()
+                header.alarm_type = element.get_text().strip()
                 state = None
 
             if isinstance(element, LTTextContainer) and element.get_text().startswith("Description:\n"):
                 state = 'description'
             elif isinstance(element, LTTextContainer) and state == 'description':
-                header.description = element.get_text()
+                header.description = element.get_text().strip()
                 state = None
 
             if isinstance(element, LTTextContainer) and element.get_text().startswith("Date de création:\n"):
@@ -331,12 +331,17 @@ class PDFExtractor:
         if len(cleaned) != 5:
             raise PDFExtractionException("Invalid message (Wrong number of semicolon)")
 
+        # Couleurs disponibles: ROUGE, JAUNE, BLEU, GRIS
+        last_space_index = cleaned[0].rindex(' ')
+        couleur = '' if last_space_index > 0 and cleaned[0][last_space_index:] in ['ROUGE', 'JAUNE', 'BLEU', 'GRIS'] else ''
+        code = cleaned[0] if couleur == '' else cleaned[0][:last_space_index]
+
         # 0 is Alarm type
         # 1 is address (and complement)
         # 2 is intervention complement
         # 3 is LV95 coordinate
         # 4 is "CET JU"
-        return PDFMessage(alarm_type=cleaned[0], event_address=cleaned[1], intervention_complement=cleaned[2], lv95_coordinate=cleaned[3])
+        return PDFMessage(code=code, couleur=couleur, event_address=cleaned[1], intervention_complement=cleaned[2], lv95_coordinate=cleaned[3])
 
     @staticmethod
     def _is_sis_title(title_element):
