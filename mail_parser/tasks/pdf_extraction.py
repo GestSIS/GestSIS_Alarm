@@ -2,10 +2,11 @@ from pdfminer.high_level import extract_pages
 from pdfminer.layout import LAParams, LTTextContainer, LTTextLine
 from enum import Enum
 import re
+from datetime import datetime
 from collections import deque
 from .utils.pdf_data import PDFData
+from .utils.pdf_header import PDFHeader
 from .utils.pdf_message import PDFMessage
-
 
 class PDFExtractionException(Exception):
     def __init__(self, message):
@@ -48,12 +49,11 @@ class PDFExtractor:
         self.current_firefighter_stats = None
 
     def extract_data(self, filename: str):
-
         # Search for the information given at the first page (Alarm type, address, coordinates, etc.).
         # This needs to need done in a separate extraction
         # because the characters recognition parameters are not the same as the firefighters ones.
-        message = self._extract_message(filename)
-        self.data_extracted.add_message_info(message)
+        header = self._extract_header(filename)
+        self.data_extracted.add_header_info(header)
 
         # The loop here is to find firefighter and there respective group and SIS
         self._reset_current_stats()
@@ -187,7 +187,7 @@ class PDFExtractor:
         self.current_firefighter_stats = {"Vient": -1, "Pas atteint": -1, "Ne vient pas": -1}
         self.current_firefighter_real = {"Pas atteint": 0, "Ne vient pas": 0}
 
-    def _extract_message(self, filename: str):
+    def _extract_header(self, filename: str):
         """
         Search and extract information given in the first page (ie. Alarm type, address, coordinates, ...)
         :param
@@ -198,11 +198,35 @@ class PDFExtractor:
         """
         page_layout = next(extract_pages(filename, maxpages=1, laparams=LAParams(line_margin=2, boxes_flow=0.8)))
 
+        header = PDFHeader(None, None, None, None, None, None)
+        state = None
         for element in page_layout:
+            if isinstance(element, LTTextContainer) and element.get_text().startswith("Type d'alarme:\n"):
+                state = 'type'
+            elif isinstance(element, LTTextContainer) and state == 'type':
+                header.alarm_type = element.get_text()
+                state = None
+
+            if isinstance(element, LTTextContainer) and element.get_text().startswith("Description:\n"):
+                state = 'description'
+            elif isinstance(element, LTTextContainer) and state == 'description':
+                header.description = element.get_text()
+                state = None
+
+            if isinstance(element, LTTextContainer) and element.get_text().startswith("Date de création:\n"):
+                state = 'dates'
+            elif isinstance(element, LTTextContainer) and state == 'dates':
+                dates = element.get_text().split('\n')
+                header.date_creation = datetime.strptime(dates[0], '%d/%m/%Y %H:%M:%S')
+                header.debut_alarme = datetime.strptime(dates[1], '%d/%m/%Y %H:%M:%S')
+                header.fin_alarme = datetime.strptime(dates[2], '%d/%m/%Y %H:%M:%S')
+                state = None
+
             # Search for the string "Message".
             # With the parameters given to pdfminer.six, the title "Message" and the message content are glued together
             if isinstance(element, LTTextContainer) and element.get_text().startswith("Message\n"):
-                return self._extract_info_from_message(element.get_text().replace("Message\n", ""))
+                header.message = self._extract_info_from_message(element.get_text().replace("Message\n", ""))
+                return header
 
         raise PDFExtractionException("Message not found")
 

@@ -17,7 +17,14 @@ class Alarm(models.Model):
     complement = models.CharField(max_length=255)
     location_wgs84 = models.CharField(max_length=255, null=True)
     location_lv95 = models.CharField(max_length=20, null=True)
-    type = models.CharField(max_length=100)
+    couleur = models.CharField(max_length=20, null=True)
+    code = models.CharField(max_length=100, null=True)
+    type = models.CharField(max_length=100, null=True)
+    description = models.CharField(max_length=100, default='')
+    date_creation = models.DateTimeField(null=True)
+    debut_alarme = models.DateTimeField(null=True)
+    fin_alarme = models.DateTimeField(null=True)
+    # Extra data for management
     has_been_read = models.BooleanField(default=False)
 
     def __str__(self):

@@ -2,12 +2,12 @@ asgiref==3.5.2
 backports.zoneinfo==0.2.1
 cffi==1.15.1
 charset-normalizer==3.0.1
-cryptography==38.0.3
+cryptography==39.0.1
 Django==4.1.7
 django-environ==0.9.0
 pdfminer.six==20221105
 pycparser==2.21
-sqlparse==0.4.3
+sqlparse==0.4.4
 tzdata==2022.6
 djangorestframework==3.14.0
 djangorestframework-simplejwt[crypto]==5.2.2
