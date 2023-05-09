@@ -1,4 +1,4 @@
-from .pdf_message import PDFMessage
+from .pdf_header import PDFHeader
 
 class PDFData:
     """
@@ -6,13 +6,13 @@ class PDFData:
     """
 
     def __init__(self):
-        self.message = None
+        self.header = None
         self.firefighter_coming = {}
         self._current_group = None
         self._current_sis = None
 
-    def add_message_info(self, message: PDFMessage):
-        self.message = message
+    def add_header_info(self, header: PDFHeader):
+        self.header = header
 
     def add_firefighter_to_current_group(self, firefighter: str, phone: str):
         """
@@ -89,4 +89,4 @@ class PDFData:
         return "{}, {}".format(self._current_sis, self._current_group)
 
     def __str__(self):
-        return "Message: {}\nFirefighters: {}".format(self.message, self.firefighter_coming)
+        return "Header: {}\nFirefighters: {}".format(self.header, self.firefighter_coming)

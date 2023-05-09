@@ -35,17 +35,17 @@ class PDFCommand(BaseCommand):
         try:
             data = extractor.extract_data(filepath)
         except PDFExtractionException as e:
-            logger.error("The parsing of {} raised an exception : {}".format(filename, e.message))
-            self.stderr.write(self.style.ERROR("ERROR while parsing: {}".format(e.message)))
+            logger.error("The parsing of {} raised an exception : {}".format(filename, e.header.message))
+            self.stderr.write(self.style.ERROR("ERROR while parsing: {}".format(e.header.message)))
             return
 
-        wgs84_coord = convert_lv95_to_wgs84(data.message.lv95_coordinate)
+        wgs84_coord = convert_lv95_to_wgs84(data.header.message.lv95_coordinate)
         if wgs84_coord is None:
-            logger.warning("Invalid coordinates given to the converter ({})".format(data.message.lv95_coordinate))
-            self.stderr.write(self.style.WARNING("WARNING Invalid coordinates given to the converter ! (Given: {})".format(data.message.lv95_coordinate)))
+            logger.warning("Invalid coordinates given to the converter ({})".format(data.header.message.lv95_coordinate))
+            self.stderr.write(self.style.WARNING("WARNING Invalid coordinates given to the converter ! (Given: {})".format(data.header.message.lv95_coordinate)))
 
             # Empty the variable to prevent wrong coordinates to be added to the database
-            data.message.lv95_coordinate = None
+            data.header.message.lv95_coordinate = None
         else:
             wgs84_coord = "{},{}".format(str(wgs84_coord[0]), str(wgs84_coord[1]))
 
@@ -53,11 +53,17 @@ class PDFCommand(BaseCommand):
         self.stdout.write("Saving in Database...", ending="")
 
         a = Alarm(
-            location_lv95=data.message.lv95_coordinate,
+            type=data.header.alarm_type,
+            date_creation=data.header.date_creation,
+            debut_alarme=data.header.debut_alarme,
+            fin_alarme=data.header.fin_alarme,
+
+            # Données du message
+            code=data.header.message.alarm_type,
+            address=data.header.message.event_address,
+            location_lv95=data.header.message.lv95_coordinate,
             location_wgs84=wgs84_coord,
-            complement=data.message.intervention_complement,
-            address=data.message.event_address,
-            type=data.message.alarm_type,
+            complement=data.header.message.intervention_complement,
         )
 
         a.save()
