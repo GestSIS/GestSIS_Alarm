@@ -101,13 +101,6 @@ DB_NAME = (os.path.join(BASE_DIR, DB_URL.get('NAME'))
            if DB_URL.get('NAME').startswith('./') and DB_URL.get('ENGINE') == "django.db.backends.sqlite3"
            else DB_URL.get('NAME'))
 
-
-print(DB_URL.get('ENGINE'))
-print(DB_NAME)
-print(DB_URL.get('USER'))
-print(DB_URL.get('PASSWORD'))
-print(DB_URL.get('HOST'))
-print(DB_URL.get('PORT'))
 DATABASES = {
     'default': {
         'ENGINE': DB_URL.get('ENGINE'),
@@ -121,7 +114,6 @@ DATABASES = {
         }
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators

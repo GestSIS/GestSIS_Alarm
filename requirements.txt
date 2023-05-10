@@ -11,4 +11,4 @@ tzdata==2022.6
 djangorestframework==3.14.0
 djangorestframework-simplejwt[crypto]==5.2.2
 mysqlclient==2.1.1
-mysql-connector-python==8.0.31
+mysql-connector-python==8.0.29 # https://www.reddit.com/r/django/comments/11wcm53/remote_db_connection_migrating/
