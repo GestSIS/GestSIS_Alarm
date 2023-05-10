@@ -110,7 +110,8 @@ DATABASES = {
         'HOST': DB_URL.get('HOST'),
         'PORT': DB_URL.get('PORT'),
         'OPTIONS': {
-            "use_pure": True
+            'use_pure': True,
+            'sql_mode': 'traditional'
         }
     }
 }
