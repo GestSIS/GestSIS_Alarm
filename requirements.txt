@@ -1,4 +1,4 @@
-asgiref==3.5.2
+asgiref==3.6.0
 cffi==1.15.1
 charset-normalizer==3.0.1
 cryptography==39.0.1
