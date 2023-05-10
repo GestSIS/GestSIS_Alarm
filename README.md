@@ -38,7 +38,7 @@ docker-compose exec alarm bash
 
 #### Requirements
 
-This project use Django Framework 4, so the project need at least **Python 3.8**
+This project use Django Framework 4, so the project need at least **Python 3.11**
 
 The requirements can be installed using the `requirements.txt` file.
 

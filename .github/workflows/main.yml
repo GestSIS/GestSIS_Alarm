@@ -3,7 +3,7 @@ name: CI
 on:
   # Triggers the workflow on push or pull request events but only for the "master" branch
   push:
-    branches: [ "master" ]
+    branches: ["master"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -35,13 +35,13 @@ jobs:
         run: ssh staging "cd ~/apps/alarm.gestsis.ch && git pull"
 
       - name: Install dependencies
-        run: ssh staging "cd ~/apps/alarm.gestsis.ch && source ~/virtualenv/apps/alarm.gestsis.ch/3.8/bin/activate && pip install -r requirements.txt"
+        run: ssh staging "cd ~/apps/alarm.gestsis.ch && source ~/virtualenv/apps/alarm.gestsis.ch/3.11/bin/activate && pip install -r requirements.txt"
 
       - name: Deploy static assets
-        run: ssh staging "cd ~/apps/alarm.gestsis.ch && source ~/virtualenv/apps/alarm.gestsis.ch/3.8/bin/activate && python manage.py collectstatic --no-input"
+        run: ssh staging "cd ~/apps/alarm.gestsis.ch && source ~/virtualenv/apps/alarm.gestsis.ch/3.11/bin/activate && python manage.py collectstatic --no-input"
 
       - name: Run migrations
-        run: ssh staging "cd ~/apps/alarm.gestsis.ch && source ~/virtualenv/apps/alarm.gestsis.ch/3.8/bin/activate && python manage.py migrate"
+        run: ssh staging "cd ~/apps/alarm.gestsis.ch && source ~/virtualenv/apps/alarm.gestsis.ch/3.11/bin/activate && python manage.py migrate"
 
       - name: Restart server
         run: ssh staging "touch ~/apps/alarm.gestsis.ch/tmp/restart.txt"
