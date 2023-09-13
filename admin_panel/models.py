@@ -48,4 +48,6 @@ class TokenUser:
 
     @cached_property
     def is_admin(self):
-        return self.token["data"].get("admin", None) is True  # The comparison is done here to handle if admin is "null"
+        return (
+            self.token["data"].get("admin", None) is True
+        )  # The comparison is done here to handle if admin is "null"

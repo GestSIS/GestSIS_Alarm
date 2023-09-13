@@ -5,63 +5,122 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Alarm',
+            name="Alarm",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('address', models.CharField(max_length=255)),
-                ('complement', models.CharField(max_length=255)),
-                ('location_wgs84', models.CharField(max_length=255, null=True)),
-                ('location_lv95', models.CharField(max_length=20, null=True)),
-                ('type', models.CharField(max_length=100)),
-                ('has_been_read', models.BooleanField(default=False)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("address", models.CharField(max_length=255)),
+                ("complement", models.CharField(max_length=255)),
+                ("location_wgs84", models.CharField(max_length=255, null=True)),
+                ("location_lv95", models.CharField(max_length=20, null=True)),
+                ("type", models.CharField(max_length=100)),
+                ("has_been_read", models.BooleanField(default=False)),
             ],
         ),
         migrations.CreateModel(
-            name='Sis',
+            name="Sis",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255, unique=True)),
-                ('gestsis_key', models.CharField(max_length=10, unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255, unique=True)),
+                ("gestsis_key", models.CharField(max_length=10, unique=True)),
             ],
             options={
-                'verbose_name_plural': 'sis',
+                "verbose_name_plural": "sis",
             },
         ),
         migrations.CreateModel(
-            name='Firefighter',
+            name="Firefighter",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('group_name', models.CharField(max_length=255)),
-                ('group_number', models.CharField(max_length=20, null=True)),
-                ('fullname', models.CharField(max_length=255)),
-                ('phone', models.CharField(max_length=50)),
-                ('alarm', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='firefighters', to='mail_parser.alarm')),
-                ('sis', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='mail_parser.sis')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("group_name", models.CharField(max_length=255)),
+                ("group_number", models.CharField(max_length=20, null=True)),
+                ("fullname", models.CharField(max_length=255)),
+                ("phone", models.CharField(max_length=50)),
+                (
+                    "alarm",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="firefighters",
+                        to="mail_parser.alarm",
+                    ),
+                ),
+                (
+                    "sis",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="mail_parser.sis",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='File',
+            name="File",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('filename', models.CharField(max_length=255, unique=True)),
-                ('alarm', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='mail_parser.alarm')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("filename", models.CharField(max_length=255, unique=True)),
+                (
+                    "alarm",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="mail_parser.alarm",
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='alarm',
-            name='sis',
-            field=models.ManyToManyField(to='mail_parser.sis'),
+            model_name="alarm",
+            name="sis",
+            field=models.ManyToManyField(to="mail_parser.sis"),
         ),
         migrations.AddConstraint(
-            model_name='firefighter',
-            constraint=models.UniqueConstraint(fields=('fullname', 'sis', 'group_name', 'group_number', 'phone', 'alarm'), name='unique_firefighter'),
+            model_name="firefighter",
+            constraint=models.UniqueConstraint(
+                fields=(
+                    "fullname",
+                    "sis",
+                    "group_name",
+                    "group_number",
+                    "phone",
+                    "alarm",
+                ),
+                name="unique_firefighter",
+            ),
         ),
     ]

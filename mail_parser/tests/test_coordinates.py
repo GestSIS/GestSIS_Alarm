@@ -67,12 +67,12 @@ class TestLV95Converter(TestCase):
         # Westernmost  point
         long, lat = convert_lv95_to_wgs84("2485410.6, 1110070")
         self.assertAlmostEqual(long, 5.955907, delta=self.delta)
-        self.assertAlmostEqual(lat,	46.132356, delta=self.delta)
+        self.assertAlmostEqual(lat, 46.132356, delta=self.delta)
 
         # Easternmost  point
         long, lat = convert_lv95_to_wgs84("2833857.5, 1166962.3")
         self.assertAlmostEqual(long, 10.492168, delta=self.delta)
-        self.assertAlmostEqual(lat,  46.612955, delta=self.delta)
+        self.assertAlmostEqual(lat, 46.612955, delta=self.delta)
 
         # Bern
         long, lat = convert_lv95_to_wgs84("2599879.5, 1199771.7")

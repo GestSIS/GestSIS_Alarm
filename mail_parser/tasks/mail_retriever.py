@@ -11,9 +11,18 @@ class MailRetriever:
     _imap_connection = None
     _mail_whitelist = []
 
-    def __init__(self, mail_server: str, port: int, username: str, password: str, mail_whitelist: list, use_starttls=False):
-
-        if use_starttls:  # Use StartTLS -> Unencrypted IMAP connection then request to encrypt with starttls
+    def __init__(
+        self,
+        mail_server: str,
+        port: int,
+        username: str,
+        password: str,
+        mail_whitelist: list,
+        use_starttls=False,
+    ):
+        if (
+            use_starttls
+        ):  # Use StartTLS -> Unencrypted IMAP connection then request to encrypt with starttls
             self._imap_connection = imaplib.IMAP4(mail_server, port)
             self._imap_connection.starttls()
         else:  # IMAPs -> IMAP over SSL/TLS (The connection is encrypted from the start
@@ -39,7 +48,7 @@ class MailRetriever:
         for mail in messages_list:
             new_files = self._save_attachment(mail[1])
             if delete_on_read and len(new_files) > 0:
-                self._imap_connection.store(mail[0], '+FLAGS', '\\Deleted')
+                self._imap_connection.store(mail[0], "+FLAGS", "\\Deleted")
 
             new_attachments += new_files
 
@@ -52,7 +61,7 @@ class MailRetriever:
         :rtype: list
         """
         status, messages = self._imap_connection.select("INBOX")
-        search_status, data = self._imap_connection.search(None, 'UnSeen')
+        search_status, data = self._imap_connection.search(None, "UnSeen")
 
         mail_list = []
 
@@ -80,7 +89,7 @@ class MailRetriever:
         :return: The message or None if the message doesn't met the criteria
         :rtype: email.message.Message or None
         """
-        status, data = self._imap_connection.fetch(mail_id, '(RFC822)')
+        status, data = self._imap_connection.fetch(mail_id, "(RFC822)")
 
         # Shouldn't have to check the data field, but some servers don't play by the rules
         if status != "OK" or not data or not data[0]:
@@ -94,10 +103,10 @@ class MailRetriever:
             return None  # Shouldn't happen, but better to be sure
 
         # Discard message if there is no attachment for us
-        if message.get_content_maintype() != 'multipart':
+        if message.get_content_maintype() != "multipart":
             return None
 
-        mail_from = message['from']
+        mail_from = message["from"]
 
         # Check if mail address is in the whitelist
         if email.utils.parseaddr(mail_from)[1].lower() not in self._mail_whitelist:
@@ -120,11 +129,20 @@ class MailRetriever:
         for part in msg.walk():
             # Check if we have a PDF (The extension check is here to be extra sure)
 
-            if part.get_content_type() in ["application/pdf", "application/octet-stream"] and Path(part.get_filename().strip()).suffix == ".pdf":
-                filename = datetime.now().strftime("%Y_%m_%d_%H_%M_%S") + "_" + str(uuid.uuid4()) + ".pdf"
+            if (
+                part.get_content_type()
+                in ["application/pdf", "application/octet-stream"]
+                and Path(part.get_filename().strip()).suffix == ".pdf"
+            ):
+                filename = (
+                    datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+                    + "_"
+                    + str(uuid.uuid4())
+                    + ".pdf"
+                )
                 filepath = os.path.join(settings.MEDIA_ROOT, "pdf", filename)
 
-                with open(filepath, 'wb') as fp:
+                with open(filepath, "wb") as fp:
                     fp.write(part.get_payload(decode=True))
 
                 filenames.append(filename)

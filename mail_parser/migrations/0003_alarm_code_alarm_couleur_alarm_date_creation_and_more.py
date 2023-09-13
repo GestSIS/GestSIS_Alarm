@@ -4,45 +4,44 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('mail_parser', '0002_group'),
+        ("mail_parser", "0002_group"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='alarm',
-            name='code',
+            model_name="alarm",
+            name="code",
             field=models.CharField(max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='alarm',
-            name='couleur',
+            model_name="alarm",
+            name="couleur",
             field=models.CharField(max_length=20, null=True),
         ),
         migrations.AddField(
-            model_name='alarm',
-            name='date_creation',
+            model_name="alarm",
+            name="date_creation",
             field=models.DateTimeField(null=True),
         ),
         migrations.AddField(
-            model_name='alarm',
-            name='debut_alarme',
+            model_name="alarm",
+            name="debut_alarme",
             field=models.DateTimeField(null=True),
         ),
         migrations.AddField(
-            model_name='alarm',
-            name='description',
-            field=models.CharField(default='', max_length=100),
+            model_name="alarm",
+            name="description",
+            field=models.CharField(default="", max_length=100),
         ),
         migrations.AddField(
-            model_name='alarm',
-            name='fin_alarme',
+            model_name="alarm",
+            name="fin_alarme",
             field=models.DateTimeField(null=True),
         ),
         migrations.AlterField(
-            model_name='alarm',
-            name='type',
+            model_name="alarm",
+            name="type",
             field=models.CharField(max_length=100, null=True),
         ),
     ]

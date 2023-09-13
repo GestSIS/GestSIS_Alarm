@@ -2,14 +2,25 @@ from unittest import TestCase
 from ..tasks.pdf_extraction import PDFExtractor, PDFExtractionException
 from pathlib import Path
 
+
 class TestPDFExtraction(TestCase):
     extractor = None
     pdf_dir = Path(Path(__file__).resolve().parent, "pdf")
 
     def setUp(self):
         allowed_sis = [
-            "SIS Basse-Allaine", "SIS Val-Terbi", "SIS Vendline", "SIS Clos-du-Doubs", "SIS FM Centre", "SIS FM Ouest",
-            "SIS Haute-Sorne", "SIS Calabri", "SIS Baroche", "SIS 6/12", "SIS Haut-Plateau", "SIS Mont-Terri"
+            "SIS Basse-Allaine",
+            "SIS Val-Terbi",
+            "SIS Vendline",
+            "SIS Clos-du-Doubs",
+            "SIS FM Centre",
+            "SIS FM Ouest",
+            "SIS Haute-Sorne",
+            "SIS Calabri",
+            "SIS Baroche",
+            "SIS 6/12",
+            "SIS Haut-Plateau",
+            "SIS Mont-Terri",
         ]
 
         self.extractor = PDFExtractor(allowed_sis)
@@ -34,7 +45,9 @@ class TestPDFExtraction(TestCase):
 
         with self.assertRaises(PDFExtractionException) as e:
             self.extractor.extract_data(filename)
-        self.assertEqual(e.exception.message, "Invalid message (Wrong number of semicolon)")
+        self.assertEqual(
+            e.exception.message, "Invalid message (Wrong number of semicolon)"
+        )
 
     def test_message_not_an_intervention(self):
         """When the message received is not an intervention but only an information. This type of message could be received in production"""
@@ -42,7 +55,9 @@ class TestPDFExtraction(TestCase):
 
         with self.assertRaises(PDFExtractionException) as e:
             self.extractor.extract_data(filename)
-        self.assertEqual(e.exception.message, "Invalid message (Wrong number of semicolon)")
+        self.assertEqual(
+            e.exception.message, "Invalid message (Wrong number of semicolon)"
+        )
 
     def test_message_extraction(self):
         """Test if the message is correctly extracted (without complement). Frequently occur in production"""
@@ -58,7 +73,9 @@ class TestPDFExtraction(TestCase):
         self.assertEqual(data.header.message.code, "FEU BAT")
         self.assertEqual(data.header.message.couleur, "ROUGE")
         self.assertEqual(data.header.message.lv95_coordinate, "2580000,1240000")
-        self.assertEqual(data.header.message.event_address, "2800 Delémont, Vainqueurs 42")
+        self.assertEqual(
+            data.header.message.event_address, "2800 Delémont, Vainqueurs 42"
+        )
         self.assertEqual(data.header.message.intervention_complement, "")
 
     def test_message_extraction_complement(self):
@@ -75,7 +92,9 @@ class TestPDFExtraction(TestCase):
         self.assertEqual(data.header.message.code, "FEU BAT")
         self.assertEqual(data.header.message.couleur, "ROUGE")
         self.assertEqual(data.header.message.lv95_coordinate, "2580000,1240000")
-        self.assertEqual(data.header.message.event_address, "2800 Delémont, Vainqueurs 42")
+        self.assertEqual(
+            data.header.message.event_address, "2800 Delémont, Vainqueurs 42"
+        )
         self.assertEqual(data.header.message.intervention_complement, "Ferme brûlée")
 
     def test_firefighter_extraction(self):
@@ -89,27 +108,34 @@ class TestPDFExtraction(TestCase):
                 "EM": {
                     "no": 90,
                     "firefighters": [
-                        {"name": "Couche Emily", "phone": "+41219853643"}, {"name": "De Santa Jérome", "phone": "+41806469435"},
-                        {"name": "Membrez Lucas", "phone": "+41416011568"}, {"name": "Raposo Laëtitia", "phone": "+41431990211"}
-                    ]
+                        {"name": "Couche Emily", "phone": "+41219853643"},
+                        {"name": "De Santa Jérome", "phone": "+41806469435"},
+                        {"name": "Membrez Lucas", "phone": "+41416011568"},
+                        {"name": "Raposo Laëtitia", "phone": "+41431990211"},
+                    ],
                 },
                 "1er secours": {
                     "no": 91,
                     "firefighters": [
-                        {"name": "Allimann Gauthier", "phone": "+41422703100"}, {"name": "Bocks André", "phone": "+41637919225"},
-                        {"name": "Cattin Réane", "phone": "+41919568736"}, {"name": "Girardin Joséphine", "phone": "+41463972764"},
-                        {"name": "Wermeille Lucie", "phone": "+41358932833"}
-                    ]
-                }
+                        {"name": "Allimann Gauthier", "phone": "+41422703100"},
+                        {"name": "Bocks André", "phone": "+41637919225"},
+                        {"name": "Cattin Réane", "phone": "+41919568736"},
+                        {"name": "Girardin Joséphine", "phone": "+41463972764"},
+                        {"name": "Wermeille Lucie", "phone": "+41358932833"},
+                    ],
+                },
             },
             "SIS Calabri": {
                 "EM": {
                     "no": 90,
                     "firefighters": [
-                        {"name": "Tobler Daniel", "phone": "+41258491517 +41838004532 +41792966875"}
-                    ]
+                        {
+                            "name": "Tobler Daniel",
+                            "phone": "+41258491517 +41838004532 +41792966875",
+                        }
+                    ],
                 }
-            }
+            },
         }
 
         self.maxDiff = None  # To have the full difference between the two dictionary if the test fails

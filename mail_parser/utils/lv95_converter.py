@@ -1,4 +1,3 @@
-
 def convert_lv95_to_wgs84(lv95_coordinate: str):
     """
     Convert CH1903+ (LV95/MN95) coordinates to WGS84.
@@ -29,24 +28,28 @@ def convert_lv95_to_wgs84(lv95_coordinate: str):
     y = (east - 2600000) / 1000000
     x = (north - 1200000) / 1000000
 
-    y2 = y ** 2
-    y3 = y ** 3
+    y2 = y**2
+    y3 = y**3
 
-    x2 = x ** 2
-    x3 = x ** 3
+    x2 = x**2
+    x3 = x**3
 
-    l = 2.6779094 \
-        + 4.728982 * y \
-        + (0.791484 * y * x) \
-        + (0.1306 * y * x2) \
+    l = (
+        2.6779094
+        + 4.728982 * y
+        + (0.791484 * y * x)
+        + (0.1306 * y * x2)
         - (0.0436 * y3)
+    )
 
-    phi = 16.9023892 \
-          + (3.238272 * x) \
-          - (0.270978 * y2) \
-          - (0.002528 * x2) \
-          - (0.0447 * y2 * x) \
-          - (0.0140 * x3)
+    phi = (
+        16.9023892
+        + (3.238272 * x)
+        - (0.270978 * y2)
+        - (0.002528 * x2)
+        - (0.0447 * y2 * x)
+        - (0.0140 * x3)
+    )
 
     # Round at the 6th decimal place, accuracy of about 10cm
     # Source: https://gis.stackexchange.com/a/8674

@@ -7,6 +7,7 @@ from django.conf import settings
 import os
 
 import logging
+
 logger = logging.getLogger("main")
 
 
@@ -24,21 +25,33 @@ class Command(PDFCommand):
 
         if None in [server, port, username, password, whitelisted_mails]:
             logger.error("Missing environment variables when retrieving mail")
-            self.stderr.write(self.style.ERROR("Missing environment variables, check your .env file !"))
+            self.stderr.write(
+                self.style.ERROR(
+                    "Missing environment variables, check your .env file !"
+                )
+            )
             return
 
         self.stdout.write("Scanning the mail server...")
         logger.info("Scanning mail server for new mails")
 
-        mc = MailRetriever(server, port, username, password, whitelisted_mails.split(","))
+        mc = MailRetriever(
+            server, port, username, password, whitelisted_mails.split(",")
+        )
         pdf_downloaded = mc.check_for_new_messages()
 
         allowed_sis = Sis.objects.values_list("name", flat=True)
-        
-        self.stdout.write("Retrieved {} files from the mail server".format(len(pdf_downloaded)))
-        logger.info("Retrieved {} files from the mail server".format(len(pdf_downloaded)))
+
+        self.stdout.write(
+            "Retrieved {} files from the mail server".format(len(pdf_downloaded))
+        )
+        logger.info(
+            "Retrieved {} files from the mail server".format(len(pdf_downloaded))
+        )
 
         for pdf_file in pdf_downloaded:
             extractor = PDFExtractor(allowed_sis)
             self.stdout.write(pdf_file)
-            self._handle_pdf(pdf_file, os.path.join(settings.MEDIA_ROOT, "pdf", pdf_file), extractor)
+            self._handle_pdf(
+                pdf_file, os.path.join(settings.MEDIA_ROOT, "pdf", pdf_file), extractor
+            )
