@@ -271,7 +271,7 @@ class PDFExtractor:
         raise PDFExtractionException("Message not found")
 
     def _is_meteo_suisse_alert(self, description):
-        return "meteosuisse" in unidecode(description).lower().replace(" ", "")
+        return "meteo" in unidecode(description).lower()
 
     def _evaluate_title(self, line):
         group, sis = self._extract_sis_title(title_text=line.get_text())
