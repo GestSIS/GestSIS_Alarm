@@ -7,6 +7,15 @@ from collections import deque
 from .utils.pdf_data import PDFData
 from .utils.pdf_header import PDFHeader
 from .utils.pdf_message import PDFMessage
+from unidecode import unidecode
+
+
+class MeteoSuisseAlarm(Exception):
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return self.message
 
 
 class PDFExtractionException(Exception):
@@ -235,6 +244,8 @@ class PDFExtractor:
             elif isinstance(element, LTTextContainer) and state == "description":
                 header.description = element.get_text().strip()
                 state = None
+                if self._is_meteo_suisse_alert(header.description):
+                    raise MeteoSuisseAlarm("Description : " + header.description)
 
             if isinstance(element, LTTextContainer) and element.get_text().startswith(
                 "Date de création:\n"
@@ -258,6 +269,9 @@ class PDFExtractor:
                 return header
 
         raise PDFExtractionException("Message not found")
+
+    def _is_meteo_suisse_alert(self, description):
+        return "meteosuisse" in unidecode(description).lower().replace(" ", "")
 
     def _evaluate_title(self, line):
         group, sis = self._extract_sis_title(title_text=line.get_text())
@@ -328,6 +342,7 @@ class PDFExtractor:
             objective: dict
               The number of firefighter the group should have
         :raise: PDFExtractionException if the number is not the same
+        :raise: MeteoSuisseAlarm if the document is a Meteo Suisse Alert
         """
 
         nb_ff = pdf_data.get_current_group()

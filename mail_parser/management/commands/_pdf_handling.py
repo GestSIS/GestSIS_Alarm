@@ -1,6 +1,10 @@
 from django.core.management import BaseCommand
 
-from ...tasks.pdf_extraction import PDFExtractor, PDFExtractionException
+from ...tasks.pdf_extraction import (
+    PDFExtractor,
+    PDFExtractionException,
+    MeteoSuisseAlarm,
+)
 from ...models import Alarm, File, Firefighter, Sis, Group
 from ...utils.lv95_converter import convert_lv95_to_wgs84
 
@@ -35,14 +39,19 @@ class PDFCommand(BaseCommand):
 
         try:
             data = extractor.extract_data(filepath)
-        except PDFExtractionException as e:
-            logger.error(
-                "The parsing of {} raised an exception : {}".format(
-                    filename, e.header.message
+        except MeteoSuisseAlarm as e:
+            logger.warning(
+                "Extracted report identified as MeteoSuisse Alarm discarded : {} - {}".format(
+                    e.filename,
+                    e.message,
                 )
             )
+        except PDFExtractionException as e:
+            logger.error(
+                "The parsing of {} raised an exception : {}".format(filename, e.message)
+            )
             self.stderr.write(
-                self.style.ERROR("ERROR while parsing: {}".format(e.header.message))
+                self.style.ERROR("ERROR while parsing: {}".format(e.message))
             )
             return
 
