@@ -255,11 +255,7 @@ class PDFExtractor:
                 and header.description is None
             ):
                 state = "description"
-            elif (
-                isinstance(element, LTTextContainer)
-                and state == "description"
-                and element.get_text().startswith(" ")
-            ):
+            elif isinstance(element, LTTextContainer) and state == "description":
                 header.description = element.get_text().strip()
                 state = None
                 if self._is_meteo_suisse_alert(header.description):
