@@ -42,7 +42,7 @@ class PDFCommand(BaseCommand):
         except MeteoSuisseAlarm as e:
             logger.warning(
                 "Extracted report identified as MeteoSuisse Alarm discarded : {} - {}".format(
-                    e.filename,
+                    filename,
                     e.message,
                 )
             )
