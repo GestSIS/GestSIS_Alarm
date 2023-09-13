@@ -263,11 +263,13 @@ class PDFExtractor:
             if isinstance(element, LTTextContainer) and element.get_text().startswith(
                 "Message\n"
             ):
-                header.message = self._extract_info_from_message(
-                    element.get_text().replace("Message\n", "")
-                )
-                return header
-
+                try:
+                    header.message = self._extract_info_from_message(
+                        element.get_text().replace("Message\n", "")
+                    )
+                    return header
+                except PDFExtractionException:
+                    raise PDFExtractionException(header.description)
         raise PDFExtractionException("Message not found")
 
     def _is_meteo_suisse_alert(self, description):
