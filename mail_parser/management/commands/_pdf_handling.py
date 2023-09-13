@@ -46,6 +46,15 @@ class PDFCommand(BaseCommand):
                     e.message,
                 )
             )
+            self.stdout.write(
+                self.style.WARNING(
+                    "WARNING MeteoSuisse Alarm discarded : {} - {}".format(
+                        filename,
+                        e.message,
+                    )
+                )
+            )
+            return
         except PDFExtractionException as e:
             logger.error(
                 "The parsing of {} raised an exception : {}".format(filename, e.message)
