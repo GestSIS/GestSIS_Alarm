@@ -140,4 +140,4 @@ class PDFCommand(BaseCommand):
         file_obj.save()
 
         logger.info("Successfully added {} in the database".format(filename))
-        self.stdout.write(self.style.SUCCESS("DONE"))
+        self.stdout.write(self.style.SUCCESS(" DONE"))
