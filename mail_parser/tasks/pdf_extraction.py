@@ -238,10 +238,28 @@ class PDFExtractor:
                 state = None
 
             if isinstance(element, LTTextContainer) and element.get_text().startswith(
-                "Description:\n"
+                "Rapport d'alarme\n "
+            ):
+                description = (
+                    element.get_text().removeprefix("Rapport d'alarme\n ").strip()
+                )
+                if not description == "":
+                    header.description = description
+                    state = ""
+                if self._is_meteo_suisse_alert(header.description):
+                    raise MeteoSuisseAlarm("Description : " + header.description)
+
+            if (
+                isinstance(element, LTTextContainer)
+                and element.get_text().startswith("Description:\n")
+                and header.description == ""
             ):
                 state = "description"
-            elif isinstance(element, LTTextContainer) and state == "description":
+            elif (
+                isinstance(element, LTTextContainer)
+                and state == "description"
+                and element.get_text().startswith(" ")
+            ):
                 header.description = element.get_text().strip()
                 state = None
                 if self._is_meteo_suisse_alert(header.description):
