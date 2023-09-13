@@ -246,13 +246,13 @@ class PDFExtractor:
                 if not description == "":
                     header.description = description
                     state = ""
-                if self._is_meteo_suisse_alert(header.description):
-                    raise MeteoSuisseAlarm("Description : " + header.description)
+                    if self._is_meteo_suisse_alert(header.description):
+                        raise MeteoSuisseAlarm("Description : " + header.description)
 
             if (
                 isinstance(element, LTTextContainer)
                 and element.get_text().startswith("Description:\n")
-                and header.description == ""
+                and header.description is None
             ):
                 state = "description"
             elif (
