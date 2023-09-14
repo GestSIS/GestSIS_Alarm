@@ -409,7 +409,8 @@ class PDFExtractor:
         couleur = (
             ""
             if last_space_index > 0
-            and cleaned[0][last_space_index:] in ["ROUGE", "JAUNE", "BLEU", "GRIS"]
+            and cleaned[0][(last_space_index + 1) :]
+            in ["ROUGE", "JAUNE", "BLEU", "GRIS"]
             else ""
         )
         code = cleaned[0] if couleur == "" else cleaned[0][:last_space_index]
