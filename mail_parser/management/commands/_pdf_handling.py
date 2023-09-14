@@ -99,6 +99,7 @@ class PDFCommand(BaseCommand):
             date_creation=data.header.date_creation,
             debut_alarme=data.header.debut_alarme,
             fin_alarme=data.header.fin_alarme,
+            description=data.header.description,
             # Données du message
             code=data.header.message.code,
             couleur=data.header.message.couleur,
