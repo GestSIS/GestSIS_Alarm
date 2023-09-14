@@ -86,8 +86,10 @@ class PDFCommand(BaseCommand):
 
         logger.debug("Saving {} in the database".format(filename))
         self.stdout.write(
-            "Saving in Database - {} - {}".format(
-                data.header.date_creation, data.header.message.code
+            "Saving in Database - {} - {}:{}".format(
+                data.header.date_creation,
+                data.header.message.code,
+                data.header.message.couleur,
             ),
             ending="",
         )
