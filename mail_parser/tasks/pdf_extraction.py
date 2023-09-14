@@ -405,9 +405,10 @@ class PDFExtractor:
             raise PDFExtractionException("Invalid message (Wrong number of semicolon)")
 
         # Couleurs disponibles: ROUGE, JAUNE, BLEU, GRIS
+        cleaned[0] = cleaned[0].strip()
         last_space_index = cleaned[0].rindex(" ")
         couleur = (
-            ""
+            cleaned[0][(last_space_index + 1) :]
             if last_space_index > 0
             and cleaned[0][(last_space_index + 1) :]
             in ["ROUGE", "JAUNE", "BLEU", "GRIS"]
