@@ -45,5 +45,11 @@ class AlarmSerializer(serializers.ModelSerializer):
             "sis",
             "firefighters",
             "groups",
+            "description",
+            "couleur",
+            "code",
+            "date_creation",
+            "debut_alarme",
+            "fin_alarme",
             "has_been_read",
         ]
