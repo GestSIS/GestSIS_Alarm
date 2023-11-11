@@ -12,5 +12,6 @@
   {"model": "mail_parser.sis", "pk": 11, "fields": {"name": "SIS Haut-Plateau", "gestsis_key": "hp"}},
   {"model": "mail_parser.sis", "pk": 12, "fields": {"name": "SIS Mont-Terri", "gestsis_key": "mt"}},
   {"model": "mail_parser.sis", "pk": 13, "fields": {"name": "SIS FM Est", "gestsis_key": "fme"}},
-  {"model": "mail_parser.sis", "pk": 14, "fields": {"name": "SIS Test", "gestsis_key": "test"}}
+  {"model": "mail_parser.sis", "pk": 14, "fields": {"name": "SIS Test", "gestsis_key": "test"}},
+  {"model": "mail_parser.sis", "pk": 15, "fields": {"name": "SIS HAC", "gestsis_key": "hac"}}
 ]
