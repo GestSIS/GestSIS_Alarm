@@ -49,6 +49,8 @@ class MailRetriever:
             new_files = self._save_attachment(mail[1])
             if delete_on_read and len(new_files) > 0:
                 self._imap_connection.store(mail[0], "+FLAGS", "\\Deleted")
+            else:
+                self._imap_connection.store(mail[0].replace(' ',','), '+FLAGS', "\\Seen")
 
             new_attachments += new_files
 
