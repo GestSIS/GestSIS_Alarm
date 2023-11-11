@@ -51,6 +51,8 @@ class MailRetriever:
                 self._imap_connection.store(mail[0], "+FLAGS", "\\Deleted")
             else:
                 self._imap_connection.store(mail[0], '+FLAGS', "\\Seen")
+                print("Seen flag res :")
+                print(res)
 
             new_attachments += new_files
 
