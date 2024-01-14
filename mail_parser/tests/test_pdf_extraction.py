@@ -1,6 +1,7 @@
 from unittest import TestCase
 from ..tasks.pdf_extraction import PDFExtractor, PDFExtractionException
 from pathlib import Path
+from datetime import datetime
 
 
 class TestPDFExtraction(TestCase):
@@ -66,9 +67,9 @@ class TestPDFExtraction(TestCase):
         data = self.extractor.extract_data(filename)
 
         self.assertEqual(data.header.description, "Feu bâtiment")
-        self.assertEqual(data.header.date_creation, "07/06/2021 00:35:15")
-        self.assertEqual(data.header.debut_alarme, "07/06/2021 00:36:45")
-        self.assertEqual(data.header.fin_alarme, "07/06/2021 00:40:37")
+        self.assertEqual(data.header.date_creation, datetime.strptime("07/06/2021 00:35:15", "%d/%m/%Y %H:%M:%S"))
+        self.assertEqual(data.header.debut_alarme, datetime.strptime("07/06/2021 00:36:45", "%d/%m/%Y %H:%M:%S"))
+        self.assertEqual(data.header.fin_alarme, datetime.strptime("07/06/2021 00:40:37", "%d/%m/%Y %H:%M:%S"))
         self.assertEqual(data.header.alarm_type, "Alarme réelle")
         self.assertEqual(data.header.message.code, "FEU BAT")
         self.assertEqual(data.header.message.couleur, "ROUGE")
@@ -85,9 +86,9 @@ class TestPDFExtraction(TestCase):
         data = self.extractor.extract_data(filename)
 
         self.assertEqual(data.header.description, "Feu bâtiment")
-        self.assertEqual(data.header.date_creation, "07/06/2021 00:35:15")
-        self.assertEqual(data.header.debut_alarme, "07/06/2021 00:36:45")
-        self.assertEqual(data.header.fin_alarme, "07/06/2021 00:40:37")
+        self.assertEqual(data.header.date_creation, datetime.strptime("07/06/2021 00:35:15", "%d/%m/%Y %H:%M:%S"))
+        self.assertEqual(data.header.debut_alarme, datetime.strptime("07/06/2021 00:36:45", "%d/%m/%Y %H:%M:%S"))
+        self.assertEqual(data.header.fin_alarme, datetime.strptime("07/06/2021 00:40:37", "%d/%m/%Y %H:%M:%S"))
         self.assertEqual(data.header.alarm_type, "Alarme réelle")
         self.assertEqual(data.header.message.code, "FEU BAT")
         self.assertEqual(data.header.message.couleur, "ROUGE")

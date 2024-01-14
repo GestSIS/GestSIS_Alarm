@@ -374,6 +374,7 @@ class PDFExtractor:
                     )
                 )
             else:
+                
                 raise PDFExtractionException(
                     "Incorrect number of firefighter extracted for {}. (Come: {}/{}, Don't come: {}/{}, Didn't answer: {}/{})".format(
                         pdf_data.get_current_group_name(),
@@ -402,7 +403,7 @@ class PDFExtractor:
         cleaned = [element.strip() for element in cleaned]
 
         if len(cleaned) != 5:
-            raise PDFExtractionException("Invalid message (Wrong number of semicolon)")
+            raise PDFExtractionException(f"Invalid message (Wrong number of semicolon) {str(cleaned)}")
 
         # Couleurs disponibles: ROUGE, JAUNE, BLEU, GRIS
         cleaned[0] = cleaned[0].strip()

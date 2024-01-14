@@ -1,11 +1,11 @@
-cryptography==41.0.6
-Django==4.2.7
+cryptography==41.0.7
+Django==5.0.1
 django-environ==0.11.2
 djangorestframework==3.14.0
-djangorestframework-simplejwt[crypto]==5.3.0
-mysqlclient==2.2.0
+djangorestframework-simplejwt[crypto]==5.3.1
+mysqlclient==2.2.1
 # WARNING: 8.0.30 is BROKEN https://www.reddit.com/r/django/comments/11wcm53/remote_db_connection_migrating/
-mysql-connector-python==8.0.29
-pdfminer.six==20221105
+mysql-connector-python==8.2.0
+pdfminer.six==20231228
 sqlparse==0.4.4
-unidecode==1.3.7
+unidecode==1.3.8
