@@ -1,4 +1,4 @@
-cryptography==42.0.5
+cryptography==42.0.6
 Django==5.0.4
 django-environ==0.11.2
 djangorestframework==3.15.1
@@ -6,7 +6,7 @@ djangorestframework-simplejwt[crypto]==5.3.1
 mysqlclient==2.2.4
 # WARNING: 8.0.30 is BROKEN https://www.reddit.com/r/django/comments/11wcm53/remote_db_connection_migrating/
 # Seems to be fixed with 8.2.0
-mysql-connector-python==8.3.0
+mysql-connector-python==8.4.0
 pdfminer.six==20231228
 sqlparse==0.5.0
 unidecode==1.3.8
