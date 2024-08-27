@@ -18,20 +18,25 @@ To use this project with Docker, you need to do the following steps:
 2. Copy the`.env.example` file to `.env`
 3. Specify the missing values in it (except for `GESTSIS_ALARM_SECRET_KEY`, it will be generated automatically)
 4. Run Docker compose
+
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
-4. If you go to `http://127.0.0.1:8000`, you should see the django webpage
+
+5. If you go to `http://127.0.0.1:8000`, you should see the django webpage
 
 #### Access django terminal
 
 If you want to access the terminal inside the docker container to run `manage.py` commands, you need to run the following command :
+
 ```bash
 docker exec -it alarm bash
 ```
-Or with docker-compose :
+
+Or with docker compose :
+
 ```bash
-docker-compose exec alarm bash
+docker compose exec alarm bash
 ```
 
 ### Manually
@@ -45,24 +50,32 @@ The requirements can be installed using the `requirements.txt` file.
 For example, using a virtual environment :
 
 1. Create a virtual environment
+
 ```bash
 python -m venv .venv
 ```
+
 2. Activate the environment
-```
+
+```bash
 # Windows
 .venv/Scripts/activate.bat
 # Linux
 source .venv/bin/activate
 ```
+
 3. Install the dependencies
-```
+
+```bash
 pip install -r requirements.txt
 ```
+
 4. Run the initialisation script
+
 ```bash
 python init.py
 ```
+
 It will do two things :
   - Copy the`.env.example` file to `.env`
   - Populate the `.env` file with a secret key that will be used by Django
@@ -75,16 +88,19 @@ The script has done some jobs for you, but you need to do the last step :
 Theses are important because without them, the application won't function properly.
 
 6. Migrate the database
-```
+
+```bash
 python manage.py migrate
 ```
 
 7. Add initial data in the database
-```
+
+```bash
 python manage.py loaddata sis
 ```
 
 7. Finally, you can run the app !
+
 ```bash
 python manage.py runserver
 ```
@@ -99,21 +115,21 @@ The project has two commands that you can execute without running the web server
 
 The usage is has follows:
 
-```
-$ python manage.py retrieve_mail -h
-usage: manage.py retrieve_mail [-h] [--server SERVER] [--port PORT] [--username USERNAME] [--password PASSWORD]
-                               [--whitelisted-mails WHITELISTED_MAILS [WHITELISTED_MAILS ...]] [--use-starttls]
-
-Retrieve PDF from mail server and store it into the pdf folder
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --server SERVER       Url of the mail server
-  --port PORT           Port of the mail server
-  --username USERNAME   Can be a username or your email address depending on your email provider
-  --password PASSWORD   Password to connect to your mail server
-  --whitelisted-mails   The script will only download PDF from the mail addresses
-  --use-starttls        If given, the connection to the mail server will use STARTTLS instead of IMAPs
+```bash
+python manage.py retrieve_mail -h
+# usage: manage.py retrieve_mail [-h] [--server SERVER] [--port PORT] [--username USERNAME] [--password PASSWORD]
+#                                [--whitelisted-mails WHITELISTED_MAILS [WHITELISTED_MAILS ...]] [--use-starttls]
+# 
+# Retrieve PDF from mail server and store it into the pdf folder
+# 
+# optional arguments:
+#   -h, --help            show this help message and exit
+#   --server SERVER       Url of the mail server
+#   --port PORT           Port of the mail server
+#   --username USERNAME   Can be a username or your email address depending on your email provider
+#   --password PASSWORD   Password to connect to your mail server
+#   --whitelisted-mails   The script will only download PDF from the mail addresses
+#   --use-starttls        If given, the connection to the mail server will use STARTTLS instead of IMAPs
 ```
 
 For each parameter you don't provide, the script will check if the corresponding environment variable is available. If not, the command return an error.
@@ -139,17 +155,17 @@ python manage.py retrieve_mail --server mail.example.com --whitelisted-mails nor
 `extract_pdf` is the command that extract data from a mobilisation report (PDF file).
 
 ```bash
-$ python manage.py extract_pdf -h
-usage: manage.py extract_pdf [-h]
-                             pdf_file
-
-Extract data from the mobilisation report
-
-positional arguments:
-  pdf_file              Path to the pdf file, can be absolute or relative. If relative, the root folder is 'storage'
-
-optional arguments:
-  -h, --help            show this help message and exit
+python manage.py extract_pdf -h
+# usage: manage.py extract_pdf [-h]
+#                              pdf_file
+# 
+# Extract data from the mobilisation report
+# 
+# positional arguments:
+#   pdf_file              Path to the pdf file, can be absolute or relative. If relative, the root folder is 'storage'
+# 
+# optional arguments:
+#   -h, --help            show this help message and exit
 ```
 
 #### Example
@@ -183,6 +199,7 @@ This project supports SQLite out of the box but you can change the engine for on
 - Oracle
 
 To do that, you will need to change the `GESTSIS_DATABASE_URL` variable in the`.env` file and follow the url schema below :
+
 ```ini
 # For SQLite
 # (you can also add a dot (.) to make it relative to the gestsis_alarm folder)
@@ -209,7 +226,9 @@ More infos available in the [Django documentation](https://docs.djangoproject.co
 
 This project comes with some unit tests to validate the code.
 If you want to run them, run the following command :
+
 ```bash
 python manage.py test
 ```
+
 Theses tests are located in the `tests` folder of `mail_parser`
