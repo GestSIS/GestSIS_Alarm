@@ -4,8 +4,6 @@ django-environ==0.12.0
 djangorestframework==3.15.2
 djangorestframework-simplejwt[crypto]==5.5.0
 mysqlclient==2.2.7
-# WARNING: 8.0.30 is BROKEN https://www.reddit.com/r/django/comments/11wcm53/remote_db_connection_migrating/
-# Seems to be fixed with 8.2.0
 mysql-connector-python==9.2.0
 pdfminer.six==20240706
 sentry-sdk[django]==2.23.1
