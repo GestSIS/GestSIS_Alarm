@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 from pathlib import Path
 import environ
 import os.path
+import sentry_sdk
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,6 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env(GESTSIS_ALARM_DEBUG_MODE=(bool, False))
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
+sentry_sdk.init(
+    dsn=env("SENTRY_DSN"),
+    # Add data like request headers and IP for users;
+    # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
+    send_default_pii=True,
+)
 
 SECRET_KEY = env("GESTSIS_ALARM_SECRET_KEY")
 
