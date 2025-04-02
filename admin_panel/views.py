@@ -25,27 +25,27 @@ class AlarmViewSet(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        sis_id = self.request.META.get("HTTP_SIS_ID")
+        sis_key = self.request.META.get("HTTP_SIS_KEY")
         keys = None
 
         if self.request.user.is_admin:
-            if sis_id:
-                keys = [sis_id]
+            if sis_key:
+                keys = [sis_key]
             else:
                 keys = "all"
         else:
             perms = self.request.user.get_sis_for_permissions(
                 ["intervention.modification"]
             )
-            if sis_id:
-                if sis_id not in perms:
+            if sis_key:
+                if sis_key not in perms:
                     raise PermissionDenied(
                         {
                             "message": "Insufficient permission to retrieve the SIS data specified"
                         }
                     )
 
-                keys = [sis_id]
+                keys = [sis_key]
             else:
                 keys = perms
 

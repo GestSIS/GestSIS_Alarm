@@ -75,7 +75,7 @@ class Firefighter(models.Model):
             return NotImplemented
 
         return (
-            self.sis_id == other.sis_id
+            self.sis_key == other.sis_key
             and self.group_name == other.group_name
             and self.fullname == other.fullname
             and self.phone == other.phone

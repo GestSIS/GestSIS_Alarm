@@ -167,7 +167,7 @@ paths:
       description: List every alarm that hasn't been read before
       parameters:
         - in: header
-          name: SIS-ID
+          name: SIS-KEY
           description: Filter the list of alarm by the id specified in this field
           schema:
             type: string
