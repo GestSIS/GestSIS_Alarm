@@ -46,7 +46,7 @@ class PDFExtractor:
         self._sis_whitelist = sis_whitelist
 
         self.re_pattern_firefighter = re.compile(
-            r"([\w\- ]+) (Téléphone) ((?: (?:(?:\+)?\d+)){1,2}) ([a-zA-Zé ]+)",
+            r"([\w\-\(\) ]+) (Téléphone) ((?: (?:(?:\+)?\d+)){1,2}) ([a-zA-Zé ]+)",
             flags=re.UNICODE,
         )
         self.re_pattern_incomplete_firefighter = re.compile(
@@ -163,6 +163,8 @@ class PDFExtractor:
                                 else:
                                     reading_mode = ReadingMode.SEARCH_SIS
                                     break
+                            else:
+                                print(line)
 
         return self.data_extracted
 
@@ -402,7 +404,11 @@ class PDFExtractor:
         cleaned = message.replace("\n", "").split(";")
         cleaned = [element.strip() for element in cleaned]
 
-        if len(cleaned) != 5:
+        if len(cleaned) > 5:
+            # Manage case when ';' is used in the message
+            cleaned = cleaned[:2]+[' ; '.join(cleaned[2:-2])]+cleaned[-2:]
+
+        if len(cleaned) < 5:
             raise PDFExtractionException(f"Invalid message (Wrong number of semicolon) {str(cleaned)}")
 
         # Couleurs disponibles: ROUGE, JAUNE, BLEU, GRIS
