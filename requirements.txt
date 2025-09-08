@@ -1,4 +1,4 @@
-cryptography==45.0.6
+cryptography==45.0.7
 Django==5.2.5
 django-environ==0.12.0
 djangorestframework==3.16.1
@@ -6,6 +6,6 @@ djangorestframework-simplejwt[crypto]==5.5.1
 mysqlclient==2.2.7
 mysql-connector-python==9.4.0
 pdfminer.six==20250506
-sentry-sdk[django]==2.35.0
+sentry-sdk[django]==2.37.0
 sqlparse==0.5.3
 unidecode==1.4.0
