@@ -6,6 +6,6 @@ djangorestframework-simplejwt[crypto]==5.5.1
 mysqlclient==2.2.7
 mysql-connector-python==9.4.0
 pdfminer.six==20250506
-sentry-sdk[django]==2.39.0
+sentry-sdk[django]==2.41.0
 sqlparse==0.5.3
 unidecode==1.4.0
