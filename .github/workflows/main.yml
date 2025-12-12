@@ -35,7 +35,7 @@ jobs:
         run: ssh staging "cd ~/apps/alarm.gestsis.ch && git pull"
 
       - name: Install dependencies
-        run: ssh staging "cd ~/apps/alarm.gestsis.ch && source ~/virtualenv/apps/alarm.gestsis.ch/3.13/bin/activate && pip install -r requirements.txt"
+        run: ssh staging "cd ~/apps/alarm.gestsis.ch && source ~/virtualenv/apps/alarm.gestsis.ch/3.13/bin/activate && uv sync"
 
       - name: Deploy static assets
         run: ssh staging "cd ~/apps/alarm.gestsis.ch && source ~/virtualenv/apps/alarm.gestsis.ch/3.13/bin/activate && python manage.py collectstatic --no-input"
