@@ -1,7 +1,7 @@
 [project]
-name = "app"
+name = "GestSIS_Alarm"
 version = "0.1.0"
-description = "Add your description here"
+description = "Module permettant la gestion des alarmes dans GestSIS."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
