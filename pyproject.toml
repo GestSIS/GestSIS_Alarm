@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "cryptography==46.0.4",
-    "django==5.2.10",
+    "django==5.2.11",
     "django-environ==0.12.0",
     "djangorestframework==3.16.1",
     "djangorestframework-simplejwt[crypto]==5.5.1",
