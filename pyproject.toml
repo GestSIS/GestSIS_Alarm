@@ -13,7 +13,7 @@ dependencies = [
     "mysql-connector-python==9.6.0",
     "mysqlclient==2.2.8",
     "pdfminer-six==20260107",
-    "sentry-sdk[django]==2.53.0",
+    "sentry-sdk[django]==2.54.0",
     "sqlparse==0.5.5",
     "unidecode==1.4.0",
 ]
