@@ -203,6 +203,71 @@ It uses the environment variables for the mail settings, and it can't be overwri
 python manage.py mail_and_extract
 ```
 
+### test_pdf_parsing
+
+This command is used to test PDF parsing without saving data to the database. It's useful for:
+- Diagnosing parsing errors on existing PDF files
+- Testing the parser after bug fixes
+- Identifying which files fail to parse and why
+
+The command can optionally retrieve emails before testing, and provides detailed error reports.
+
+```bash
+python manage.py test_pdf_parsing -h
+# usage: manage.py test_pdf_parsing [-h] [--retrieve-mails] [--limit LIMIT]
+#                                   [--pattern PATTERN] [--file FILE]
+#                                   [--verbose]
+# 
+# Test PDF parsing without saving to database and report errors
+# 
+# optional arguments:
+#   -h, --help           show this help message and exit
+#   --retrieve-mails     Retrieve emails from mail server before testing PDFs
+#   --limit LIMIT        Maximum number of PDFs to test (or emails to retrieve if --retrieve-mails is set)
+#   --pattern PATTERN    Filter PDF files by pattern (e.g., '2026_05_*'). Ignored if --file is used.
+#   --file FILE          Test a specific PDF file (filename only, not full path)
+#   --verbose            Display detailed information for all files, including successful ones
+```
+
+#### Example
+
+```bash
+# === Testing existing PDF files (already downloaded) ===
+
+# Test ALL PDF files already in storage/pdf/ (no download)
+python manage.py test_pdf_parsing
+
+# Test only the last 100 existing PDF files (most recent, no download)
+python manage.py test_pdf_parsing --limit 100
+
+# Test existing PDFs from May 2026 (no download)
+python manage.py test_pdf_parsing --pattern "2026_05_*"
+
+# Test a specific existing file (no download)
+python manage.py test_pdf_parsing --file 2026_05_06_09_18_00_a7f8ca56-8015-4117-aa53-4ce5fa2a9c3c.pdf
+
+# Test last 3 existing files with detailed output (no download)
+python manage.py test_pdf_parsing --limit 3 --verbose
+
+# === Downloading AND testing ===
+
+# Retrieve the last 10 emails (read or unread) and test their PDFs
+python manage.py test_pdf_parsing --retrieve-mails --limit 10
+```
+
+**Note:** The `--limit` option behavior depends on `--retrieve-mails`:
+- **Without** `--retrieve-mails`: Limits the number of existing PDFs to test (takes the N most recent files)
+- **With** `--retrieve-mails`: Limits the number of emails to retrieve from the server
+
+The command will output a detailed report showing:
+- Number of files tested
+- Success/failure/skip statistics
+- List of successful files with alarm details (code, color, address)
+- List of failed files with error details and tracebacks
+- Overall success rate
+
+**Note:** This command does NOT save any data to the database. It's purely for testing and diagnostics.
+
 ## Databases
 
 This project supports SQLite out of the box but you can change the engine for one supported by Django:

@@ -53,6 +53,11 @@ class PDFExtractor:
             r"([\w\- ]+) (Téléphone) ((?: (?:(?:\+)?\d+)){2})", flags=re.UNICODE
         )
         self.re_pattern_phone = re.compile(r"(?:(?:\+)?\d{5,})")
+        # Pattern for cases where name is on a separate line: "Téléphone +41... Vient"
+        self.re_pattern_phone_status_only = re.compile(
+            r"(Téléphone) ((?: (?:(?:\+)?\d+)){1,2}) ([a-zA-Zé ]+)",
+            flags=re.UNICODE,
+        )
 
         self.re_pattern_stats_come = re.compile(r"Viennent: (\d+)")
         self.re_pattern_stats_dont_come = re.compile(
@@ -64,6 +69,7 @@ class PDFExtractor:
         self.data_extracted = PDFData()
         self.current_firefighter_real = None
         self.current_firefighter_stats = None
+        self.pending_phone_status = None  # Buffer for "Téléphone +NUM Vient" without name
 
     def extract_data(self, filename: str):
         # Search for the information given at the first page (Alarm type, address, coordinates, etc.).
@@ -88,8 +94,6 @@ class PDFExtractor:
                 # Discard lines, figure and image from being processed
                 if not isinstance(element, LTTextContainer):
                     continue
-
-                last_lines.append(element.get_text().strip())
 
                 if reading_mode is None:
                     # The list of firefighter only appears after "Statistiques par Service"
@@ -120,11 +124,43 @@ class PDFExtractor:
 
                 # Extract the list of firefighter that comes to the intervention
                 elif reading_mode == ReadingMode.SEARCH_FIREFIGHTER:
+                    # Check for corrupted PDF where subreport failed to generate
+                    if "Error: Subreport could not be shown" in element.get_text():
+                        raise PDFExtractionException(
+                            f"Corrupted PDF: Subreport error in {self.data_extracted.get_current_group_name()}"
+                        )
+                    
                     for line in element:
                         if isinstance(line, LTTextLine):
-                            match_firefighter = self.re_pattern_firefighter.match(
-                                line.get_text().strip()
-                            )
+                            line_text = line.get_text().strip()
+                            
+                            # First, check if this is a name-only line that should be associated with pending phone/status
+                            if self.pending_phone_status is not None:
+                                # Check if this looks like a name (short, no keywords)
+                                is_likely_name = (
+                                    len(line_text) < 50 and 
+                                    line_text and 
+                                    not any(keyword in line_text for keyword in 
+                                        ["Téléphone", "SMS", "Message envoyé", "Vient", "Ne vient pas", 
+                                         "Pas atteint", "Page:", "Erreur", "MédiaContact", "Numéro", "communication"])
+                                )
+                                
+                                if is_likely_name:
+                                    # Associate this name with the pending phone/status
+                                    phone, status = self.pending_phone_status
+                                    if status == "Vient":
+                                        self.data_extracted.add_firefighter_to_current_group(
+                                            " ".join(line_text.split()),
+                                            phone,
+                                        )
+                                    elif status in ["Pas atteint", "Ne vient pas"]:
+                                        self.current_firefighter_real[status] += 1
+                                    
+                                    self.pending_phone_status = None  # Clear buffer
+                                    continue
+                            
+                            # Standard case: "Name Téléphone +NUM Status"
+                            match_firefighter = self.re_pattern_firefighter.match(line_text)
                             if match_firefighter:
                                 if (label := match_firefighter.group(4)) == "Vient":
                                     # The name is split and join back to back to remove multiple space between name
@@ -135,6 +171,13 @@ class PDFExtractor:
 
                                 if label in ["Pas atteint", "Ne vient pas"]:
                                     self.current_firefighter_real[label] += 1
+
+                            # Case where name comes AFTER: "Téléphone +41... Vient" (store in buffer)
+                            elif match_phone_only := self.re_pattern_phone_status_only.match(line_text):
+                                # Store phone and status for the next name we encounter
+                                phone = match_phone_only.group(2).strip()
+                                status = match_phone_only.group(3).strip()
+                                self.pending_phone_status = (phone, status)
 
                             # When a person has three phone numbers, the page layout breaks and the information
                             # are all over the place. Luckily, the pattern is always the same and we need to search
@@ -212,6 +255,7 @@ class PDFExtractor:
             "Ne vient pas": -1,
         }
         self.current_firefighter_real = {"Pas atteint": 0, "Ne vient pas": 0}
+        self.pending_phone_status = None  # Clear any pending phone/status from previous group
 
     def _extract_header(self, filename: str):
         """
@@ -274,8 +318,10 @@ class PDFExtractor:
                 header.fin_alarme = datetime.strptime(dates[2], "%d/%m/%Y %H:%M:%S")
                 state = None
 
-            # Search for the string "Message".
-            # With the parameters given to pdfminer.six, the title "Message" and the message content are glued together
+            # Search for the "Messages" section
+            # Two possible formats:
+            # 1. Old format: "Message\n" with content glued together
+            # 2. New format: "Messages\n" → "Langue Message\n" → MESSAGE or Fr → MESSAGE
             if isinstance(element, LTTextContainer) and element.get_text().startswith(
                 "Message\n"
             ):
@@ -286,6 +332,25 @@ class PDFExtractor:
                     return header
                 except PDFExtractionException:
                     raise PDFExtractionException(header.description)
+            
+            # New format: "Messages\n" followed by message in next elements
+            if isinstance(element, LTTextContainer) and element.get_text().startswith(
+                "Messages\n"
+            ):
+                state = "searching_message"
+            elif isinstance(element, LTTextContainer) and state == "searching_message":
+                text = element.get_text()
+                # The message element contains ";CET JU" at the end
+                # Skip "Langue Message\n" and "Fr\n" elements
+                if ";CET JU" in text or text.endswith(";CET JU\n"):
+                    try:
+                        header.message = self._extract_info_from_message(text)
+                        return header
+                    except PDFExtractionException:
+                        raise PDFExtractionException(header.description)
+                # Stop searching if we reach statistics (safety check)
+                elif text.startswith("Statistiques"):
+                    raise PDFExtractionException("Message not found in Messages section")
         raise PDFExtractionException("Message not found")
 
     def _is_meteo_suisse_alert(self, description):
@@ -407,6 +472,33 @@ class PDFExtractor:
         if len(cleaned) > 5:
             # Manage case when ';' is used in the message
             cleaned = cleaned[:2]+[' ; '.join(cleaned[2:-2])]+cleaned[-2:]
+
+        # Handle case where we have only 4 segments instead of 5
+        # Multiple possible formats:
+        # 1. TYPE;ADDRESS;COORDS;TZ (segment 3 IS the coordinates)
+        # 2. TYPE;ADDRESS;COMPLEMENT with coords;TZ (coords embedded at end of segment 2)
+        # 3. TYPE;ADDRESS;COMPLEMENT;TZ (no coordinates at all, segment 3 is complement)
+        if len(cleaned) == 4:
+            import re
+            coord_pattern = re.compile(r'^(\d{6,7},\d{6,7})$')  # Full segment is coords
+            coord_embedded_pattern = re.compile(r'\s+(\d{6,7},\d{6,7})$')  # Coords at end
+            
+            # Check if segment 3 is entirely coordinates
+            if coord_pattern.match(cleaned[2]):
+                # Format: TYPE;ADDRESS;COORDS;TZ → insert empty complement
+                cleaned = cleaned[:2] + ['', cleaned[2], cleaned[3]]
+            
+            # Check if coordinates are embedded at end of segment 2
+            elif match := coord_embedded_pattern.search(cleaned[2]):
+                # Format: TYPE;ADDRESS;COMPLEMENT coords;TZ → extract coords
+                coordinates = match.group(1)
+                cleaned[2] = cleaned[2][:match.start()].strip()
+                cleaned = cleaned[:3] + [coordinates, cleaned[3]]
+            
+            # Otherwise segment 3 is complement, no coordinates available
+            else:
+                # Format: TYPE;ADDRESS;COMPLEMENT;TZ → insert empty coords
+                cleaned = cleaned[:3] + ['', cleaned[3]]
 
         if len(cleaned) < 5:
             raise PDFExtractionException(f"Invalid message (Wrong number of semicolon) {str(cleaned)}")
