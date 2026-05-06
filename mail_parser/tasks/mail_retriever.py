@@ -32,19 +32,23 @@ class MailRetriever:
 
         self._mail_whitelist = [m.lower() for m in mail_whitelist]
 
-    def check_for_new_messages(self, delete_on_read=False):
+    def check_for_new_messages(self, delete_on_read=False, include_read=False, limit=None):
         """
         Scan the inbox for new message that has a PDF attachment and download it on the disk
         :param
           delete_on_read: bool
             If the message should be delete on the server after it has retrieve the PDF
+          include_read: bool
+            If True, retrieve all messages (read and unread). If False, only unread messages.
+          limit: int or None
+            Maximum number of messages to retrieve. If None, retrieve all matching messages.
 
         :return: A list of filename of all the attachment downloaded
         :rtype: list
         """
         new_attachments = []
 
-        messages_list = self._retrieve_messages()
+        messages_list = self._retrieve_messages(include_read=include_read, limit=limit)
         for mail in messages_list:
             new_files = self._save_attachment(mail[1])
             if delete_on_read and len(new_files) > 0:
@@ -58,14 +62,22 @@ class MailRetriever:
 
         return new_attachments
 
-    def _retrieve_messages(self):
+    def _retrieve_messages(self, include_read=False, limit=None):
         """
         Scan for all the unread message in the inbox, check if they met the condition and return them
+        :param
+          include_read: bool
+            If True, retrieve all messages. If False, only unread messages.
+          limit: int or None
+            Maximum number of messages to retrieve. If None, retrieve all matching messages.
         :return: A list of tuple containing the mail id as first member and the message object as the second
         :rtype: list
         """
         status, messages = self._imap_connection.select("INBOX")
-        search_status, data = self._imap_connection.search(None, "UnSeen")
+        
+        # Search for all messages or only unread ones
+        search_criteria = "ALL" if include_read else "UnSeen"
+        search_status, data = self._imap_connection.search(None, search_criteria)
 
         mail_list = []
 
@@ -73,7 +85,13 @@ class MailRetriever:
         if search_status != "OK" or not data or not data[0]:
             return []
 
-        for mail_id in data[0].split():
+        mail_ids = data[0].split()
+        
+        # Apply limit: take the last N messages (most recent)
+        if limit is not None and limit > 0:
+            mail_ids = mail_ids[-limit:]
+
+        for mail_id in mail_ids:
             content = self._fetch_message(mail_id)
             if content is not None:
                 mail_list.append((mail_id, content))

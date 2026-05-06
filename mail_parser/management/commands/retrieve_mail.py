@@ -50,6 +50,18 @@ class Command(BaseCommand):
             action="store_true",
             help="If given, the connection to the mail server will use STARTTLS instead of IMAPs",
         )
+        parser.add_argument(
+            "--include-read",
+            action="store_true",
+            default=False,
+            help="If given, retrieve both read and unread messages. By default, only unread messages are retrieved.",
+        )
+        parser.add_argument(
+            "--limit",
+            type=int,
+            default=None,
+            help="Maximum number of messages to retrieve. If not specified, all matching messages are retrieved.",
+        )
 
     def handle(self, *args, **options):
         for option in self._required_options:
@@ -73,7 +85,10 @@ class Command(BaseCommand):
             options["whitelisted_mails"],
             options["use_starttls"],
         )
-        pdf_downloaded = mc.check_for_new_messages()
+        pdf_downloaded = mc.check_for_new_messages(
+            include_read=options["include_read"],
+            limit=options["limit"]
+        )
         print("{} file(s) retrieved".format(len(pdf_downloaded)))
         [print("- {}".format(f)) for f in pdf_downloaded]
         logger.info(

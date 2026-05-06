@@ -119,6 +119,7 @@ The usage is has follows:
 python manage.py retrieve_mail -h
 # usage: manage.py retrieve_mail [-h] [--server SERVER] [--port PORT] [--username USERNAME] [--password PASSWORD]
 #                                [--whitelisted-mails WHITELISTED_MAILS [WHITELISTED_MAILS ...]] [--use-starttls]
+#                                [--include-read] [--limit LIMIT]
 # 
 # Retrieve PDF from mail server and store it into the pdf folder
 # 
@@ -130,6 +131,8 @@ python manage.py retrieve_mail -h
 #   --password PASSWORD   Password to connect to your mail server
 #   --whitelisted-mails   The script will only download PDF from the mail addresses
 #   --use-starttls        If given, the connection to the mail server will use STARTTLS instead of IMAPs
+#   --include-read        If given, retrieve both read and unread messages. By default, only unread messages are retrieved.
+#   --limit LIMIT         Maximum number of messages to retrieve. If not specified, all matching messages are retrieved.
 ```
 
 For each parameter you don't provide, the script will check if the corresponding environment variable is available. If not, the command return an error.
@@ -148,6 +151,15 @@ python manage.py retrieve_mail --username nobody@example.com
 
 # Get the whitelisted mail and the server url from the command line and the others from the environment
 python manage.py retrieve_mail --server mail.example.com --whitelisted-mails noreply@example.com report@example.com mobile@example.com
+
+# Retrieve both read and unread messages (by default, only unread messages are retrieved)
+python manage.py retrieve_mail --include-read
+
+# Retrieve only the last 10 unread messages
+python manage.py retrieve_mail --limit 10
+
+# Retrieve the last 5 messages (both read and unread)
+python manage.py retrieve_mail --include-read --limit 5
 ```
 
 ### extract_pdf
