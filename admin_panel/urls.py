@@ -1,4 +1,4 @@
-from django.urls import include, path, re_path
+from django.urls import include, path
 from rest_framework import routers
 from .views import SisViewSet, AlarmViewSet, AlarmSetterUpdateView
 
@@ -10,5 +10,5 @@ router.register(
 urlpatterns = [
     path("", include(router.urls)),
     path("alarm/", AlarmViewSet.as_view()),
-    re_path(r"^alarm/(?P<pk>\d+)/reading-status/$", AlarmSetterUpdateView.as_view()),
+    path("alarm/<int:pk>/reading-status/", AlarmSetterUpdateView.as_view()),
 ]

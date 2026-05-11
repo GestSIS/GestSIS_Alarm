@@ -3,10 +3,10 @@ name = "GestSIS_Alarm"
 version = "0.1.0"
 description = "Module permettant la gestion des alarmes dans GestSIS."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.13"
 dependencies = [
     "cryptography==47.0.0",
-    "django==5.2.13",
+    "django==6.0",
     "django-environ==0.13.0",
     "djangorestframework==3.17.1",
     "djangorestframework-simplejwt[crypto]==5.5.1",
@@ -16,3 +16,7 @@ dependencies = [
     "sqlparse==0.5.5",
     "unidecode==1.4.0",
 ]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["admin_panel*", "mail_parser*", "gestsis_alarm*"]
