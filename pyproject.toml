@@ -12,7 +12,7 @@ dependencies = [
     "djangorestframework-simplejwt[crypto]==5.5.1",
     "mysql-connector-python==9.7.0",
     "pdfminer-six==20260107",
-    "sentry-sdk[django]==2.60.0",
+    "sentry-sdk[django]==2.61.1",
     "sqlparse==0.5.5",
     "unidecode==1.4.0",
 ]
