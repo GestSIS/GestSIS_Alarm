@@ -5,14 +5,14 @@ description = "Module permettant la gestion des alarmes dans GestSIS."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "cryptography==48.0.0",
+    "cryptography==49.0.0",
     "django==6.0.6",
     "django-environ==0.13.0",
     "djangorestframework==3.17.1",
     "djangorestframework-simplejwt[crypto]==5.5.1",
     "mysql-connector-python==9.7.0",
     "pdfminer-six==20260107",
-    "sentry-sdk[django]==2.61.1",
+    "sentry-sdk[django]==2.62.0",
     "sqlparse==0.5.5",
     "unidecode==1.4.0",
 ]
