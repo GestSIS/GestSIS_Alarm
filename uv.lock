@@ -258,7 +258,6 @@ dependencies = [
     { name = "mysql-connector-python" },
     { name = "pdfminer-six" },
     { name = "sentry-sdk", extra = ["django"] },
-    { name = "sqlparse" },
     { name = "unidecode" },
 ]
 
@@ -272,7 +271,6 @@ requires-dist = [
     { name = "mysql-connector-python", specifier = "==9.7.0" },
     { name = "pdfminer-six", specifier = "==20260107" },
     { name = "sentry-sdk", extras = ["django"], specifier = "==2.66.0" },
-    { name = "sqlparse", specifier = "==0.5.5" },
     { name = "unidecode", specifier = "==1.4.0" },
 ]
 
