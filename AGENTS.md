@@ -31,7 +31,7 @@ Exécutables sans serveur web (voir `--help` pour les options) :
 - `retrieve_mail` — télécharge les PDF de rapports depuis le serveur mail
 - `extract_pdf <fichier>` — extrait les données d'un rapport PDF
 - `mail_and_extract` — combine les deux (destiné au cron ; enregistre en base)
-- `test_pdf_parsing` — teste le parsing sans rien écrire en base (diagnostic)
+- `diagnose_pdf_parsing` — teste le parsing sans rien écrire en base (diagnostic)
 
 ## Configuration
 

@@ -1,4 +1,5 @@
 from django.core.management import BaseCommand
+from django.db import transaction
 
 from ...tasks.pdf_extraction import (
     PDFExtractor,
@@ -94,53 +95,59 @@ class PDFCommand(BaseCommand):
             ending="",
         )
 
-        a = Alarm(
-            type=data.header.alarm_type,
-            date_creation=data.header.date_creation,
-            debut_alarme=data.header.debut_alarme,
-            fin_alarme=data.header.fin_alarme,
-            description=data.header.description,
-            # Données du message
-            code=data.header.message.code,
-            couleur=data.header.message.couleur,
-            address=data.header.message.event_address,
-            location_lv95=data.header.message.lv95_coordinate,
-            location_wgs84=wgs84_coord,
-            complement=data.header.message.intervention_complement,
-        )
+        # Atomic: a failure halfway through must not leave an Alarm without
+        # its firefighters or without its File marker (which would cause the
+        # PDF to be partially re-imported on the next run)
+        with transaction.atomic():
+            a = Alarm(
+                type=data.header.alarm_type,
+                date_creation=data.header.date_creation,
+                debut_alarme=data.header.debut_alarme,
+                fin_alarme=data.header.fin_alarme,
+                description=data.header.description,
+                # Données du message
+                code=data.header.message.code,
+                couleur=data.header.message.couleur,
+                address=data.header.message.event_address,
+                location_lv95=data.header.message.lv95_coordinate,
+                location_wgs84=wgs84_coord,
+                complement=data.header.message.intervention_complement,
+            )
 
-        a.save()
+            a.save()
 
-        # Add firefighters into the database
-        firefighters = []
-        groups = []
+            # Add firefighters into the database
+            firefighters = []
+            groups = []
 
-        for sis, sis_groups in data.firefighter_coming.items():
-            s = Sis.objects.get(name=sis)
-            a.sis.add(s)
+            for sis, sis_groups in data.firefighter_coming.items():
+                s = Sis.objects.get(name=sis)
+                a.sis.add(s)
 
-            for group_name, group_data in sis_groups.items():
-                groups.append(
-                    Group(sis=s, name=group_name, number=str(group_data["no"]), alarm=a)
-                )
-                for person in group_data["firefighters"]:
-                    firefighters.append(
-                        Firefighter(
-                            fullname=person["name"],
-                            phone=person["phone"],
-                            sis=s,
-                            group_name=group_name,
-                            group_number=str(group_data["no"]),
-                            alarm=a,
+                for group_name, group_data in sis_groups.items():
+                    groups.append(
+                        Group(
+                            sis=s, name=group_name, number=str(group_data["no"]), alarm=a
                         )
                     )
+                    for person in group_data["firefighters"]:
+                        firefighters.append(
+                            Firefighter(
+                                fullname=person["name"],
+                                phone=person["phone"],
+                                sis=s,
+                                group_name=group_name,
+                                group_number=str(group_data["no"]),
+                                alarm=a,
+                            )
+                        )
 
-        Firefighter.objects.bulk_create(firefighters)
-        Group.objects.bulk_create(groups)
+            Firefighter.objects.bulk_create(firefighters)
+            Group.objects.bulk_create(groups)
 
-        # Save file in database to prevent from reading it again
-        file_obj = File(filename=filename, alarm=a)
-        file_obj.save()
+            # Save file in database to prevent from reading it again
+            file_obj = File(filename=filename, alarm=a)
+            file_obj.save()
 
         logger.info("Successfully added {} in the database".format(filename))
         self.stdout.write(self.style.SUCCESS(" DONE"))

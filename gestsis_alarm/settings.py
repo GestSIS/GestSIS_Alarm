@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env(GESTSIS_ALARM_DEBUG_MODE=(bool, False))
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
-if env("SENTRY_DSN"):
+if env("SENTRY_DSN", default=None):
     sentry_sdk.init(
         dsn=env("SENTRY_DSN"),
         # Add data like request headers and IP for users;
@@ -118,9 +118,13 @@ DATABASES = {
         "PASSWORD": DB_URL.get("PASSWORD"),
         "HOST": DB_URL.get("HOST"),
         "PORT": DB_URL.get("PORT"),
-        "OPTIONS": {"use_pure": True, "sql_mode": "traditional"},
     }
 }
+
+# use_pure and sql_mode are MySQL-only options: sqlite3.connect() (and other
+# backends) would reject them as unexpected keyword arguments
+if "mysql" in (DB_URL.get("ENGINE") or ""):
+    DATABASES["default"]["OPTIONS"] = {"use_pure": True, "sql_mode": "traditional"}
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators

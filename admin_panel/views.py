@@ -12,7 +12,7 @@ from django.core.management import call_command
 
 class SisViewSet(viewsets.ModelViewSet):
     """
-    API endpoint that allows users to be viewed or edited.
+    API endpoint that allows SIS to be viewed or edited.
     """
 
     queryset = Sis.objects.all()
@@ -49,10 +49,12 @@ class AlarmViewSet(generics.ListAPIView):
             else:
                 keys = perms
 
-        # Force update of the database before retrieving data
+        # Force update of the database before retrieving data.
+        # Restricted to admins: it opens an IMAP connection and parses PDFs,
+        # which is far too expensive to be triggerable by any authenticated user.
         if (
-            "force_update" in self.request.query_params
-            and self.request.query_params["force_update"] == "true"
+            self.request.user.is_admin
+            and self.request.query_params.get("force_update") == "true"
         ):
             call_command("mail_and_extract")
 
@@ -80,6 +82,10 @@ class AlarmViewSet(generics.ListAPIView):
                 )
             )
             .filter(sis__gestsis_key__in=keys, has_been_read=False)
+            # distinct() is required: filtering on the M2M returns one row
+            # per matching SIS, so an alarm shared by two SIS the user can
+            # access would appear twice
+            .distinct()
         )
 
         return queryset
@@ -107,15 +113,17 @@ class AlarmSetterUpdateView(views.APIView):
                     status.HTTP_403_FORBIDDEN,
                 )
 
-        has_been_read = request.POST.get("has_been_read")
+        # request.data handles JSON as well as form-encoded bodies
+        # (request.POST is empty on a PATCH request with a JSON body)
+        has_been_read = request.data.get("has_been_read")
 
-        if has_been_read not in ["true", "false"]:
+        if has_been_read not in ["true", "false", True, False]:
             return Response(
                 {"message": "Missing/Invalid has_been_read in body"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        data = {"has_been_read": has_been_read == "true"}
+        data = {"has_been_read": has_been_read in ["true", True]}
         serializer = AlarmSerializer(model, data=data, partial=True)
         if serializer.is_valid():
             serializer.save()

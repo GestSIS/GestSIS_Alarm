@@ -2,12 +2,15 @@ from pdfminer.high_level import extract_pages
 from pdfminer.layout import LAParams, LTTextContainer, LTTextLine
 from enum import Enum
 import re
+import logging
 from datetime import datetime
 from collections import deque
 from .utils.pdf_data import PDFData
 from .utils.pdf_header import PDFHeader
 from .utils.pdf_message import PDFMessage
 from unidecode import unidecode
+
+logger = logging.getLogger("main")
 
 
 class MeteoSuisseAlarm(Exception):
@@ -94,6 +97,8 @@ class PDFExtractor:
                 # Discard lines, figure and image from being processed
                 if not isinstance(element, LTTextContainer):
                     continue
+
+                last_lines.append(element.get_text().strip())
 
                 if reading_mode is None:
                     # The list of firefighter only appears after "Statistiques par Service"
@@ -207,7 +212,7 @@ class PDFExtractor:
                                     reading_mode = ReadingMode.SEARCH_SIS
                                     break
                             else:
-                                print(line)
+                                logger.debug("Unrecognized line: %s", line)
 
         return self.data_extracted
 
@@ -330,8 +335,10 @@ class PDFExtractor:
                         element.get_text().replace("Message\n", "")
                     )
                     return header
-                except PDFExtractionException:
-                    raise PDFExtractionException(header.description)
+                except PDFExtractionException as e:
+                    raise PDFExtractionException(
+                        "{} (Description: {})".format(e.message, header.description)
+                    )
             
             # New format: "Messages\n" followed by message in next elements
             if isinstance(element, LTTextContainer) and element.get_text().startswith(
@@ -346,8 +353,10 @@ class PDFExtractor:
                     try:
                         header.message = self._extract_info_from_message(text)
                         return header
-                    except PDFExtractionException:
-                        raise PDFExtractionException(header.description)
+                    except PDFExtractionException as e:
+                        raise PDFExtractionException(
+                            "{} (Description: {})".format(e.message, header.description)
+                        )
                 # Stop searching if we reach statistics (safety check)
                 elif text.startswith("Statistiques"):
                     raise PDFExtractionException("Message not found in Messages section")
@@ -400,8 +409,10 @@ class PDFExtractor:
             )
 
         elif text == "Pas répondus:":
+            # The count usually sits on the line right before the label, but
+            # depending on the PDF layout that line can be unrelated text
             self.current_firefighter_stats["Pas atteint"] = (
-                0 if not last_text else int(last_text)
+                int(last_text) if last_text and last_text.isdigit() else 0
             )
 
         if -1 not in self.current_firefighter_stats.values():
@@ -435,13 +446,12 @@ class PDFExtractor:
                 and other_data["Ne vient pas"] == objective["Ne vient pas"]
                 and other_data["Pas atteint"] == objective["Pas atteint"]
             ):
-                print(
-                    "Stats: Successfully parsed {} ({})".format(
-                        pdf_data.get_current_group_name(), objective
-                    )
+                logger.debug(
+                    "Stats: Successfully parsed %s (%s)",
+                    pdf_data.get_current_group_name(),
+                    objective,
                 )
             else:
-                
                 raise PDFExtractionException(
                     "Incorrect number of firefighter extracted for {}. (Come: {}/{}, Don't come: {}/{}, Didn't answer: {}/{})".format(
                         pdf_data.get_current_group_name(),
@@ -479,7 +489,6 @@ class PDFExtractor:
         # 2. TYPE;ADDRESS;COMPLEMENT with coords;TZ (coords embedded at end of segment 2)
         # 3. TYPE;ADDRESS;COMPLEMENT;TZ (no coordinates at all, segment 3 is complement)
         if len(cleaned) == 4:
-            import re
             coord_pattern = re.compile(r'^(\d{6,7},\d{6,7})$')  # Full segment is coords
             coord_embedded_pattern = re.compile(r'\s+(\d{6,7},\d{6,7})$')  # Coords at end
             

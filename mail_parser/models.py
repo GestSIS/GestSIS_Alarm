@@ -39,7 +39,8 @@ class Group(models.Model):
     alarm = models.ForeignKey(Alarm, related_name="groups", on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.number + " " + self.name
+        # number is nullable
+        return "{} {}".format(self.number, self.name) if self.number else self.name
 
 
 class Firefighter(models.Model):
@@ -69,19 +70,6 @@ class Firefighter(models.Model):
 
     def __str__(self):
         return self.fullname
-
-    def __eq__(self, other):
-        if not isinstance(other, Firefighter):
-            return NotImplemented
-
-        return (
-            self.sis_key == other.sis_key
-            and self.group_name == other.group_name
-            and self.fullname == other.fullname
-            and self.phone == other.phone
-            and self.group_number == self.group_number
-            and self.alarm == self.alarm
-        )
 
 
 class File(models.Model):

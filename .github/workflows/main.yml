@@ -4,14 +4,47 @@ on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
     branches: ["main"]
+  pull_request:
+    branches: ["main"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
+  test:
+    name: "Test"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the source
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          uv run _scripts/init.py
+          mkdir -p storage/pdf storage/keys
+          # Dummy key pair: settings.py needs a JWT public key to boot
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out /tmp/jwt-private.key
+          openssl pkey -in /tmp/jwt-private.key -pubout -out storage/keys/auth-public.key
+
+      - name: Run tests
+        run: uv run manage.py test
+
   deploy:
     name: "Deploy"
     runs-on: ubuntu-latest
+    needs: test
+    # Never deploy from a pull request, only from pushes to main (and manual runs)
+    if: github.event_name != 'pull_request'
 
     steps:
       - name: Configure SSH

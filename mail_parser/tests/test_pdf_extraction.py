@@ -41,13 +41,16 @@ class TestPDFExtraction(TestCase):
             self.extractor.extract_data(filename)
 
     def test_message_missing_semicolon(self):
-        """The message is almost correctly formed, only one semicolon is missing"""
+        """The message is almost correctly formed, only one semicolon is missing.
+        Since the 4-segment fallback, such a message is parsed instead of rejected;
+        this PDF is then refused later, at the firefighter verification step."""
         filename = Path(self.pdf_dir, "2_test_missing_semicolon.pdf")
 
         with self.assertRaises(PDFExtractionException) as e:
             self.extractor.extract_data(filename)
-        self.assertEqual(
-            e.exception.message, "Invalid message (Wrong number of semicolon)"
+        self.assertTrue(
+            e.exception.message.startswith("Incorrect number of firefighter extracted"),
+            e.exception.message,
         )
 
     def test_message_not_an_intervention(self):
@@ -56,8 +59,11 @@ class TestPDFExtraction(TestCase):
 
         with self.assertRaises(PDFExtractionException) as e:
             self.extractor.extract_data(filename)
-        self.assertEqual(
-            e.exception.message, "Invalid message (Wrong number of semicolon)"
+        self.assertTrue(
+            e.exception.message.startswith(
+                "Invalid message (Wrong number of semicolon)"
+            ),
+            e.exception.message,
         )
 
     def test_message_extraction(self):

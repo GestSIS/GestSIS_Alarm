@@ -1,16 +1,18 @@
 import imaplib
 import email
+import email.policy
+import email.utils
+import logging
 from pathlib import Path
 import uuid
 from django.conf import settings
 import os.path
 from datetime import datetime
 
+logger = logging.getLogger("main")
+
 
 class MailRetriever:
-    _imap_connection = None
-    _mail_whitelist = []
-
     def __init__(
         self,
         mail_server: str,
@@ -54,9 +56,8 @@ class MailRetriever:
             if delete_on_read and len(new_files) > 0:
                 self._imap_connection.store(mail[0], "+FLAGS", "\\Deleted")
             else:
-                res = self._imap_connection.store(mail[0], '+FLAGS', "\\Seen")
-                print("Seen flag res :")
-                print(res)
+                res = self._imap_connection.store(mail[0], "+FLAGS", "\\Seen")
+                logger.debug("Seen flag result: %s", res)
 
             new_attachments += new_files
 
@@ -150,11 +151,14 @@ class MailRetriever:
 
         for part in msg.walk():
             # Check if we have a PDF (The extension check is here to be extra sure)
+            # get_filename() returns None for parts without a filename (e.g. inline content)
+            part_filename = part.get_filename()
 
             if (
                 part.get_content_type()
                 in ["application/pdf", "application/octet-stream"]
-                and Path(part.get_filename().strip()).suffix == ".pdf"
+                and part_filename
+                and Path(part_filename.strip()).suffix == ".pdf"
             ):
                 filename = (
                     datetime.now().strftime("%Y_%m_%d_%H_%M_%S")

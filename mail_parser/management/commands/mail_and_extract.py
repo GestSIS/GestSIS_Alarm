@@ -52,6 +52,21 @@ class Command(PDFCommand):
         for pdf_file in pdf_downloaded:
             extractor = PDFExtractor(allowed_sis)
             self.stdout.write(pdf_file)
-            self._handle_pdf(
-                pdf_file, os.path.join(settings.MEDIA_ROOT, "pdf", pdf_file), extractor
-            )
+            # A single broken PDF must not abort the whole batch: the remaining
+            # files would never be processed (they are marked as read on the
+            # mail server as soon as they are downloaded)
+            try:
+                self._handle_pdf(
+                    pdf_file,
+                    os.path.join(settings.MEDIA_ROOT, "pdf", pdf_file),
+                    extractor,
+                )
+            except Exception:
+                logger.exception("Unexpected error while processing %s", pdf_file)
+                self.stderr.write(
+                    self.style.ERROR(
+                        "Unexpected error while processing {}, skipping".format(
+                            pdf_file
+                        )
+                    )
+                )
