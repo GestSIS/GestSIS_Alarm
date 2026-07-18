@@ -574,8 +574,13 @@ class PDFExtractor:
         else:
             title = [e.strip() for e in title_text.split(" - ")]
 
+        if len(title) < 2:
+            # Any 12pt line without a "group, sis"/"group - sis" structure would
+            # otherwise crash the extraction of the whole report
+            return None, None
+
         match = self.re_pattern_sis_group.match(title[0])
         if not match:
-            return title
+            return title[0], title[1]
 
         return (int(match.group(1)), match.group(2)), title[1]

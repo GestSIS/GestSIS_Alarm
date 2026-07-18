@@ -98,13 +98,19 @@ class PDFCommand(BaseCommand):
         # Atomic: a failure halfway through must not leave an Alarm without
         # its firefighters or without its File marker (which would cause the
         # PDF to be partially re-imported on the next run)
+        # The description block is optional in the PDF (None) and its length is
+        # unbounded: both would make the save fail and silently lose the alarm
+        # (the mail is already marked as read at this point)
+        description_max_length = Alarm._meta.get_field("description").max_length
+        description = (data.header.description or "")[:description_max_length]
+
         with transaction.atomic():
             a = Alarm(
                 type=data.header.alarm_type,
                 date_creation=data.header.date_creation,
                 debut_alarme=data.header.debut_alarme,
                 fin_alarme=data.header.fin_alarme,
-                description=data.header.description,
+                description=description,
                 # Données du message
                 code=data.header.message.code,
                 couleur=data.header.message.couleur,
