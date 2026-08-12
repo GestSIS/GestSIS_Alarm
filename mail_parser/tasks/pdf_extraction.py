@@ -483,6 +483,14 @@ class PDFExtractor:
             # Manage case when ';' is used in the message
             cleaned = cleaned[:2]+[' ; '.join(cleaned[2:-2])]+cleaned[-2:]
 
+        # Handle case where we have only 3 segments instead of 5: both the
+        # complement and the coordinates are entirely absent (no ";;" placeholders),
+        # ie. TYPE;ADDRESS;CET JU. This happens when pdfminer glues the message box
+        # together with the following "Statistiques générales" section, so the tail
+        # segment also carries that trailing junk (unused, discarded below).
+        if len(cleaned) == 3 and "CET JU" in cleaned[2]:
+            cleaned = cleaned[:2] + ["", "", cleaned[2]]
+
         # Handle case where we have only 4 segments instead of 5
         # Multiple possible formats:
         # 1. TYPE;ADDRESS;COORDS;TZ (segment 3 IS the coordinates)

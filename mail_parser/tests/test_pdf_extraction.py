@@ -104,6 +104,27 @@ class TestPDFExtraction(TestCase):
         )
         self.assertEqual(data.header.message.intervention_complement, "Ferme brûlée")
 
+    def test_message_extraction_missing_complement_and_coordinates(self):
+        """Message with only 2 semicolons: both complement and LV95 coordinates are
+        entirely absent (not even empty placeholders). Occurs when pdfminer glues the
+        message box together with the following "Statistiques générales" section."""
+        filename = Path(self.pdf_dir, "6_test_missing_complement_and_coord.pdf")
+
+        data = self.extractor.extract_data(filename)
+
+        self.assertEqual(
+            data.header.description,
+            "Sauvetage personne - Aide au portage HJU - Camion échelle",
+        )
+        self.assertEqual(data.header.message.code, "SVT PERS")
+        self.assertEqual(data.header.message.couleur, "BLEU")
+        self.assertEqual(
+            data.header.message.event_address,
+            "2853 Courfaivre, Rue du Chavon-Dessus 3, grenier",
+        )
+        self.assertEqual(data.header.message.intervention_complement, "")
+        self.assertEqual(data.header.message.lv95_coordinate, "")
+
     def test_firefighter_extraction(self):
         """Test if the correct firefighter are retrieve by the script. Check for 3 numbers and names with accents"""
         filename = Path(self.pdf_dir, "4_test_valid.pdf")
