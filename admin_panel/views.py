@@ -1,5 +1,5 @@
-from rest_framework import viewsets, generics, views, status
-from rest_framework.exceptions import PermissionDenied
+from rest_framework import viewsets, generics, views
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
@@ -40,9 +40,7 @@ class AlarmViewSet(generics.ListAPIView):
             if sis_key:
                 if sis_key not in perms:
                     raise PermissionDenied(
-                        {
-                            "message": "Insufficient permission to retrieve the SIS data specified"
-                        }
+                        "Insufficient permission to retrieve the SIS data specified"
                     )
 
                 keys = [sis_key]
@@ -108,30 +106,21 @@ class AlarmSetterUpdateView(views.APIView):
         if not request.user.is_admin:
             user_has_permission = model.sis.filter(gestsis_key__in=keys).exists()
             if not user_has_permission:
-                return Response(
-                    {"message": "Invalid permission to access this object"},
-                    status.HTTP_403_FORBIDDEN,
-                )
+                raise PermissionDenied("Invalid permission to access this object")
 
         # request.data handles JSON as well as form-encoded bodies
         # (request.POST is empty on a PATCH request with a JSON body)
         has_been_read = request.data.get("has_been_read")
 
         if has_been_read not in ["true", "false", True, False]:
-            return Response(
-                {"message": "Missing/Invalid has_been_read in body"},
-                status=status.HTTP_400_BAD_REQUEST,
+            raise ValidationError(
+                {"has_been_read": ["Missing/Invalid has_been_read in body"]}
             )
 
         data = {"has_been_read": has_been_read in ["true", True]}
         serializer = AlarmSerializer(model, data=data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(
-                {
-                    "data": {"id": model.pk, "has_been_read": model.has_been_read},
-                    "message": "Success",
-                }
-            )
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {"data": {"id": model.pk, "has_been_read": model.has_been_read}}
+        )

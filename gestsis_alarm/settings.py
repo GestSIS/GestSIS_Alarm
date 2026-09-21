@@ -64,7 +64,8 @@ MIDDLEWARE = [
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTStatelessUserAuthentication",
-    )
+    ),
+    "EXCEPTION_HANDLER": "admin_panel.exceptions.custom_exception_handler",
 }
 
 SIMPLE_JWT = {
