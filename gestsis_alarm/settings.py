@@ -74,6 +74,7 @@ SIMPLE_JWT = {
     "TOKEN_TYPE_CLAIM": None,
     "USER_ID_CLAIM": "data",
     "ISSUER": "GestSIS_Auth",
+    "AUDIENCE": "GestSIS_API",
     "VERIFYING_KEY": open(env("GESTSIS_JWT_PUBLIC_KEY_PATH")).read(),
     "TOKEN_USER_CLASS": "admin_panel.models.TokenUser",
 }

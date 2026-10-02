@@ -1,4 +1,10 @@
-from django.test import TestCase
+import time
+
+import jwt
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+from django.conf import settings
+from django.test import TestCase, override_settings
 from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
 from rest_framework.test import APIClient, APIRequestFactory
 
@@ -142,3 +148,76 @@ class AlarmSetterUpdateViewTest(TestCase):
 
         self.assertEqual(response.status_code, 404)
         self.assertIn("message", response.data)
+
+
+class JwtAudienceValidationTest(TestCase):
+    """
+    Régression : sans `AUDIENCE` dans `SIMPLE_JWT`, simplejwt n'exerce
+    aucun contrôle sur le claim `aud` (`verify_aud` reste False). GestSIS_Auth
+    émet des jetons à portée restreinte (2FA pre-auth/setup, `aud` distinct de
+    "GestSIS_API") destinés uniquement à ses propres endpoints 2FA — Alarm
+    doit les rejeter comme le fait déjà GestSIS_API, pas les traiter comme un
+    jeton d'accès complet.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        cls.private_pem = private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption(),
+        )
+        cls.public_pem = private_key.public_key().public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo,
+        )
+
+    def setUp(self):
+        self.client = APIClient()
+        self.sis_a = Sis.objects.create(name="SIS A", gestsis_key="a")
+
+    def _token(self, aud):
+        now = int(time.time())
+        payload = {
+            "iss": "GestSIS_Auth",
+            "aud": aud,
+            "iat": now,
+            "exp": now + 300,
+            "data": {"id": 1, "admin": True},
+        }
+        return jwt.encode(payload, self.private_pem, algorithm="RS256")
+
+    def test_a_full_access_token_is_accepted(self):
+        with override_settings(
+            SIMPLE_JWT={**settings.SIMPLE_JWT, "VERIFYING_KEY": self.public_pem}
+        ):
+            response = self.client.get(
+                "/api/v1/alarm/",
+                HTTP_AUTHORIZATION=f"Bearer {self._token('GestSIS_API')}",
+            )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_a_two_factor_pre_auth_token_is_rejected(self):
+        with override_settings(
+            SIMPLE_JWT={**settings.SIMPLE_JWT, "VERIFYING_KEY": self.public_pem}
+        ):
+            response = self.client.get(
+                "/api/v1/alarm/",
+                HTTP_AUTHORIZATION=f"Bearer {self._token('GestSIS_Auth_2FA')}",
+            )
+
+        self.assertEqual(response.status_code, 401)
+
+    def test_a_two_factor_setup_token_is_rejected(self):
+        with override_settings(
+            SIMPLE_JWT={**settings.SIMPLE_JWT, "VERIFYING_KEY": self.public_pem}
+        ):
+            response = self.client.get(
+                "/api/v1/alarm/",
+                HTTP_AUTHORIZATION=f"Bearer {self._token('GestSIS_Auth_2FA_SETUP')}",
+            )
+
+        self.assertEqual(response.status_code, 401)
